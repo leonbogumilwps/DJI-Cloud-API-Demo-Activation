@@ -36,3 +36,9 @@ build/
 /mvnw.cmd
 /logs/
 /src/test/
+
+### docker-compose env ###
+.env
+
+### minio storage content ###
+/s3/

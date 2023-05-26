@@ -2,7 +2,7 @@
 
 ## What is the DJI Cloud API?
 
-The launch of the Cloud API mainly solves the problem of developers reinventing the wheel. For developers who do not need in-depth customization of APP, they can directly use DJI Pilot2 to communicate with the third cloud platform, and developers can focus on the development and implementation of cloud service interfaces. 
+The launch of the Cloud API mainly solves the problem of developers reinventing the wheel. For developers who do not need in-depth customization of APP, they can directly use DJI Pilot2 to communicate with the third cloud platform, and developers can focus on the development and implementation of cloud service interfaces.
 
 ## Docker
 
@@ -10,7 +10,16 @@ If you don't want to install the development environment, you can try deploying 
 
 ## Usage
 
-For more documentation, please visit the [DJI Developer Documentation](https://developer.dji.com/doc/cloud-api-tutorial/cn/).
+For more documentation, please visit the [DJI Developer Documentation](https://developer.dji.com/doc/cloud-api-tutorial/cn/).  
+You need a `.env` file with the following properties and your desired values for docker-compose to start:
+
+```shell
+DB_ROOT_PASSWORD=root
+MINIO_ROOT_USER=admin
+MINIO_ROOT_PASSWORD=supersecret
+```
+
+Before you start the background services via docker-compose, create a folder `/s3/dji-cloud/` so minio creates the bucket `dji-cloud` on startup.
 
 ## Latest Release
 
@@ -19,4 +28,3 @@ Cloud API 1.1.0 was released on 22 July 2022. For more information, please visit
 ## License
 
 Cloud API is MIT-licensed. Please refer to the LICENSE file for more information.
-

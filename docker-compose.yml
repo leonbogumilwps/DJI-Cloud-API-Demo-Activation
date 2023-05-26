@@ -1,0 +1,48 @@
+version: "3.6"
+
+volumes:
+  db_data:
+
+services:
+  backend-db:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=cloud_sample
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+      - ./logs:/logs
+      - db_data:/var/lib/mysql
+      - /etc/localtime:/etc/localtime
+    hostname: backend-db
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./s3:/data
+  redis:
+    image: redis:6.2
+    restart: "always"
+    hostname: backend-redis
+    ports:
+      - "6379:6379"
+    command: redis-server
+  emqx:
+    image: emqx:4.4
+    ports:
+      - "18083:18083"
+      - "1883:1883"
+      - "8083:8083"
+      - "8883:8883"
+      - "8084:8084"
+    environment:
+      - EMQX_ALLOW_ANONYMOUS=true
+    hostname: emqx-broker
