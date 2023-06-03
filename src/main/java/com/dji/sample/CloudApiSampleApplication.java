@@ -3,11 +3,13 @@ package com.dji.sample;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @MapperScan("com.dji.sample.*.dao")
 @SpringBootApplication
 @EnableScheduling
+@ConfigurationPropertiesScan
 //@EnableConfigurationProperties(OssConfiguration.class)
 public class CloudApiSampleApplication {
 

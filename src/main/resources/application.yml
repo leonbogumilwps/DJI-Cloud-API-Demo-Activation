@@ -77,6 +77,12 @@ url:
   control:
     prefix: /control
     version: /api/v1
+  flight-authorization-request:
+    prefix: /flight-authorization
+    version: /api/v1
+
+ussp:
+  url: http://localhost:8080/uas/api/v1
 
 # Tutorial: https://www.alibabacloud.com/help/en/object-storage-service/latest/use-a-temporary-credential-provided-by-sts-to-access-oss
 #oss:
