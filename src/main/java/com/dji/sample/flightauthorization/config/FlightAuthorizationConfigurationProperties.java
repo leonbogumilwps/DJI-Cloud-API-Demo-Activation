@@ -1,4 +1,4 @@
-package com.dji.sample.flightauthorization.model.config;
+package com.dji.sample.flightauthorization.config;
 
 import static com.dji.sample.common.util.Validators.isValidURL;
 import static org.valid4j.Assertive.require;
