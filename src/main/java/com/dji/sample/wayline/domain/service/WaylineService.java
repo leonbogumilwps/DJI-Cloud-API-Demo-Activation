@@ -26,6 +26,7 @@ import org.locationtech.jts.geom.Polygon;
 import com.dji.sample.wayline.domain.entity.Wayline;
 import com.dji.sample.wayline.domain.exception.WaylineReadException;
 import com.dji.sample.wayline.domain.value.DroneType;
+import com.dji.sample.wayline.domain.value.OperationalVolume;
 import com.dji.sample.wayline.domain.value.PayloadSubType;
 import com.dji.sample.wayline.domain.value.PayloadType;
 import com.dji.sample.wayline.model.dto.KmzFileProperties;
@@ -46,14 +47,13 @@ public class WaylineService {
 		this.geometryFactory = new GeometryFactory();
 	}
 
-	public Object getWayline(String workspaceId, String waylineId) throws EntityNotFoundException {
-		try {
-			InputStream waylineInputStream = waylineFileService.getObject(workspaceId, waylineId);
+	public Wayline getWayline(String workspaceId, String waylineId) throws EntityNotFoundException, WaylineReadException {
+		try (InputStream waylineInputStream = waylineFileService.getObject(workspaceId, waylineId)){
+			return readWaylineInputStream(waylineInputStream);
 		} catch (IOException e) {
 			log.error("Cannot read waylinefile since the inputstream has been closed already");
-			throw new RuntimeException(e);
+			throw new WaylineReadException("Cannot read waylinefile since the inputstream has been closed already");
 		}
-		return null;
 	}
 
 	private Wayline readWaylineInputStream(InputStream waylineInputStream) throws WaylineReadException {
@@ -97,13 +97,15 @@ public class WaylineService {
 
 			LineString flightPath = geometryFactory.createLineString(flightPathCoordinates.toArray(new Coordinate[0]));
 
-			//TODO: Operational Volume aus Flugroute berechnen lassen über Buffer: https://docs.geotools.org/latest/userguide/library/jts/operation.html
+			// https://docs.geotools.org/latest/userguide/library/jts/operation.html
 			Polygon flightArea = (Polygon) flightPath.buffer(10);
 			double minheight = flightPathCoordinates.stream().map(Coordinate::getZ).min(Double::compare).get();
 			double maxheight = flightPathCoordinates.stream().map(Coordinate::getZ).max(Double::compare).get();
-			
+			OperationalVolume operationalVolume = new OperationalVolume(flightArea, minheight, maxheight);
+
+			return new Wayline(flightPath, operationalVolume, templateType, droneType, payloadType, payloadSubType);
 		} catch (IOException | DocumentException e) {
-			e.printStackTrace();
+			log.error("Could not read WaylineFile.");
 		}
 		return null;
 	}

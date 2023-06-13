@@ -1,5 +1,7 @@
 package com.dji.sample.flightauthorization.api;
 
+import static com.dji.sample.component.AuthInterceptor.TOKEN_CLAIM;
+
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dji.sample.common.model.CustomClaim;
 import com.dji.sample.flightauthorization.api.command.CreateFlightAuthorizationRequestCommand;
 import com.dji.sample.flightauthorization.api.view.FlightAuthorizationListView;
 import com.dji.sample.flightauthorization.applicationservice.FlightAuthorizationApplicationService;
@@ -53,12 +56,13 @@ public class FlightAuthorizationRequestController {
 	}
 
 	@PostMapping("{workspace_id}/create")
-	public void createRequest(
+	public ResponseEntity<FlightAuthorizationRequestView> createRequest(
 		@PathVariable("workspace_id") String workspaceId,
 		@RequestBody @Valid CreateFlightAuthorizationRequestCommand command,
 		HttpServletRequest request) {
 		guard.createRequest(workspaceId, request);
-		applicationService.submitRequest(workspaceId, command);
+		CustomClaim customClaim = (CustomClaim) request.getAttribute(TOKEN_CLAIM);
+		return applicationService.submitRequest(workspaceId, customClaim.getUsername(), command);
 	}
 
 	@PutMapping("{workspace_id}/{id}/cancel")

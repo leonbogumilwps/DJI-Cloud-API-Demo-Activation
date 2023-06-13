@@ -5,6 +5,13 @@ import java.util.List;
 
 import com.dji.sample.flightauthorization.domain.value.AuthorisationStatus;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class AuthorizationStatusView {
 	private AuthorisationStatus authorisationStatus;
 	private String message;

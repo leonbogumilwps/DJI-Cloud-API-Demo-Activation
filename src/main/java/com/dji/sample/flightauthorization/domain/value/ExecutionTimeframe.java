@@ -25,7 +25,7 @@ public class ExecutionTimeframe {
 
 	private Instant landingTime;
 
-	private ExecutionTimeframe(Instant takeoffTime, Instant landingTime) {
+	public ExecutionTimeframe(Instant takeoffTime, Instant landingTime) {
 		this.takeoffTime = takeoffTime;
 		this.landingTime = landingTime;
 	}

@@ -27,6 +27,8 @@ import lombok.ToString;
 public class CreateFlightAuthorizationRequestCommand {
 
 	@NotNull
+	private String uasOperatorRegistrationNumber;
+	@NotNull
 	private Title title;
 	private Description description;
 	@NotNull

@@ -22,4 +22,8 @@ public class FlightAuthorizationService {
 	public List<FlightAuthorization> getAll() {
 		return repository.findAll();
 	}
+
+	public FlightAuthorization save(FlightAuthorization flightAuthorization) {
+		return repository.save(flightAuthorization);
+	}
 }

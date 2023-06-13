@@ -1,17 +1,13 @@
-package com.dji.sample.flightauthorization.ussp.view;
+package com.dji.sample.flightauthorization.ussp.command;
 
 import org.locationtech.jts.geom.Polygon;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class OperationalVolumeView {
+public class OperationalVolumeCommand {
 	private Polygon area;
 	private double minHeightInMeter;
 	private double maxHeightInMeter;
