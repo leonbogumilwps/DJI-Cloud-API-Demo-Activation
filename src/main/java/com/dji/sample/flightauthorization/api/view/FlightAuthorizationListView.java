@@ -1,12 +1,13 @@
 package com.dji.sample.flightauthorization.api.view;
 
 import com.dji.sample.flightauthorization.domain.entity.FlightAuthorization;
+import com.dji.sample.flightauthorization.domain.value.AuthorisationStatus;
 import com.dji.sample.flightauthorization.domain.value.Description;
 import com.dji.sample.flightauthorization.domain.value.ExecutionTimeframe;
 import com.dji.sample.flightauthorization.domain.value.ModeOfOperation;
 import com.dji.sample.flightauthorization.domain.value.Name;
 import com.dji.sample.flightauthorization.domain.value.Title;
-import com.dji.sample.flightauthorization.ussp.view.ActivationStatus;
+import com.dji.sample.flightauthorization.domain.value.ActivationStatus;
 
 import lombok.Getter;
 
@@ -19,6 +20,7 @@ public class FlightAuthorizationListView {
 	private final Description description;
 	private final ExecutionTimeframe timeframe;
 	private final ModeOfOperation modeOfOperation;
+	private final AuthorisationStatus authorisationStatus;
 	private final ActivationStatus activationStatus;
 
 	public FlightAuthorizationListView(FlightAuthorization authorization) {
@@ -29,5 +31,6 @@ public class FlightAuthorizationListView {
 		this.timeframe = authorization.getTimeframe();
 		this.modeOfOperation = authorization.getModeOfOperation();
 		this.activationStatus = authorization.getActivationStatus();
+		this.authorisationStatus = authorization.getAuthorisationStatus();
 	}
 }

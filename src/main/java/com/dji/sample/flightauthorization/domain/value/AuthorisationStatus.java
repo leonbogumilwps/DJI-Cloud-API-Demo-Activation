@@ -1,4 +1,4 @@
-package com.dji.sample.flightauthorization.ussp.view;
+package com.dji.sample.flightauthorization.domain.value;
 
 public enum AuthorisationStatus {
 	RECEIVED,

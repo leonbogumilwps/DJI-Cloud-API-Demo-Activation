@@ -2,6 +2,8 @@ package com.dji.sample.flightauthorization.ussp.view;
 
 import java.time.Instant;
 
+import com.dji.sample.flightauthorization.domain.value.ActivationStatus;
+
 public class ActivationStatusView {
 	private ActivationStatus activationStatus;
 	private String message;
