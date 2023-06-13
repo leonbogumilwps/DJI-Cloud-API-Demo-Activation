@@ -3,15 +3,18 @@ package com.dji.sample.flightauthorization.api;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dji.sample.flightauthorization.api.command.CreateFlightAuthorizationRequestCommand;
 import com.dji.sample.flightauthorization.api.view.FlightAuthorizationListView;
 import com.dji.sample.flightauthorization.applicationservice.FlightAuthorizationApplicationService;
 import com.dji.sample.flightauthorization.ussp.view.FlightAuthorizationRequestView;
@@ -52,12 +55,18 @@ public class FlightAuthorizationRequestController {
 	@PostMapping("{workspace_id}/create")
 	public void createRequest(
 		@PathVariable("workspace_id") String workspaceId,
+		@RequestBody @Valid CreateFlightAuthorizationRequestCommand command,
 		HttpServletRequest request) {
+		guard.createRequest(workspaceId, request);
+		applicationService.submitRequest(workspaceId, command);
 	}
 
 	@PutMapping("{workspace_id}/{id}/cancel")
 	public void cancelRequest(
 		@PathVariable("workspace_id") String workspaceId,
-		@PathVariable("id") Long id) {
+		@PathVariable("id") Long id,
+		HttpServletRequest request) {
+		guard.cancelRequest(workspaceId, id, request);
+		applicationService.cancelRequest(id);
 	}
 }

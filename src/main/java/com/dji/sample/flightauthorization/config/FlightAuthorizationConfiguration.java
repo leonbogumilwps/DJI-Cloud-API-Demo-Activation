@@ -12,6 +12,7 @@ import com.dji.sample.flightauthorization.applicationservice.FlightAuthorization
 import com.dji.sample.flightauthorization.domain.service.FlightAuthorizationService;
 import com.dji.sample.flightauthorization.repository.FlightAuthorizationRepository;
 import com.dji.sample.flightauthorization.ussp.USSPFlightAuthorizationRepository;
+import com.dji.sample.wayline.domain.service.WaylineService;
 import com.dji.sample.wayline.service.IWaylineFileService;
 
 @Configuration
@@ -34,8 +35,13 @@ public class FlightAuthorizationConfiguration {
 	}
 
 	@Bean
+	public WaylineService waylineService() {
+		return new WaylineService(waylineFileService);
+	}
+
+	@Bean
 	public FlightAuthorizationApplicationService flightAuthorizationApplicationService() {
-		return new FlightAuthorizationApplicationService(waylineFileService, flightAuthorizationService(), usspFlightAuthorizationRepository());
+		return new FlightAuthorizationApplicationService(waylineService(), flightAuthorizationService(), usspFlightAuthorizationRepository());
 	}
 
 	@Bean

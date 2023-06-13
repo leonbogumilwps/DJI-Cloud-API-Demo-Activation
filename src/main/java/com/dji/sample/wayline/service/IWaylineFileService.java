@@ -5,10 +5,14 @@ import com.dji.sample.wayline.model.dto.WaylineFileDTO;
 import com.dji.sample.wayline.model.param.WaylineQueryParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+
+import javax.persistence.EntityNotFoundException;
 
 /**
  * @author sean
@@ -81,4 +85,6 @@ public interface IWaylineFileService {
      * @return
      */
     void importKmzFile(MultipartFile file, String workspaceId, String creator);
+
+    InputStream getObject(String workspaceId, String waylineId) throws EntityNotFoundException, IOException;
 }
