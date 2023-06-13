@@ -1,8 +1,11 @@
 package com.dji.sample.flightauthorization.applicationservice;
 
-import org.springframework.http.HttpStatus;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.ResponseEntity;
 
+import com.dji.sample.flightauthorization.api.view.FlightAuthorizationListView;
 import com.dji.sample.flightauthorization.domain.entity.FlightAuthorization;
 import com.dji.sample.flightauthorization.ussp.USSPFlightAuthorizationRepository;
 import com.dji.sample.flightauthorization.ussp.view.FlightAuthorizationRequestView;
@@ -27,7 +30,11 @@ public class FlightAuthorizationApplicationService {
 	public void submitRequest() {
 	}
 
-	public void getRequests() {
+	public List<FlightAuthorizationListView> getAllRequests() {
+		return flightAuthorizationService.getAll()
+			.stream()
+			.map(FlightAuthorizationListView::new)
+			.collect(Collectors.toList());
 	}
 
 	public ResponseEntity<FlightAuthorizationRequestView> getRequest(Long id) {

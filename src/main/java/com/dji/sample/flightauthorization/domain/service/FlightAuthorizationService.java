@@ -1,5 +1,7 @@
 package com.dji.sample.flightauthorization.domain.service;
 
+import java.util.List;
+
 import javax.persistence.EntityNotFoundException;
 
 import com.dji.sample.flightauthorization.domain.entity.FlightAuthorization;
@@ -15,5 +17,9 @@ public class FlightAuthorizationService {
 
 	public FlightAuthorization get(Long id) {
 		return repository.findById(id).orElseThrow(EntityNotFoundException::new);
+	}
+
+	public List<FlightAuthorization> getAll() {
+		return repository.findAll();
 	}
 }

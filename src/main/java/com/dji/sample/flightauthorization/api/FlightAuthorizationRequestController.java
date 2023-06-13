@@ -1,5 +1,7 @@
 package com.dji.sample.flightauthorization.api;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dji.sample.flightauthorization.api.view.FlightAuthorizationListView;
 import com.dji.sample.flightauthorization.applicationservice.FlightAuthorizationApplicationService;
 import com.dji.sample.flightauthorization.ussp.view.FlightAuthorizationRequestView;
 
@@ -30,7 +33,11 @@ public class FlightAuthorizationRequestController {
 	}
 
 	@GetMapping("{workspace_id}")
-	public void getAllRequests(@PathVariable("workspace_id") String workspaceId) {
+	public List<FlightAuthorizationListView> getAllRequests(
+		@PathVariable("workspace_id") String workspaceId,
+		HttpServletRequest request) {
+		guard.getAllRequests(workspaceId, request);
+		return applicationService.getAllRequests();
 	}
 
 	@GetMapping("{workspace_id}/{id}")

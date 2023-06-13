@@ -13,6 +13,7 @@ import com.dji.sample.flightauthorization.domain.value.USSPId;
 import com.dji.sample.flightauthorization.domain.value.Name;
 import com.dji.sample.flightauthorization.domain.value.WaylineFileId;
 import com.dji.sample.flightauthorization.domain.value.WorkspaceId;
+import com.dji.sample.flightauthorization.ussp.view.ActivationStatus;
 
 import lombok.Getter;
 
@@ -37,4 +38,7 @@ public class FlightAuthorization extends AbstractEntity {
 
 	@Enumerated(EnumType.STRING)
 	private ModeOfOperation modeOfOperation;
+
+	@Enumerated(EnumType.STRING)
+	private ActivationStatus activationStatus;
 }
