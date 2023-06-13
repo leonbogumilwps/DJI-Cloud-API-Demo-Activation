@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NonNull;
 
 @EqualsAndHashCode
-public class UserName {
+public class Name {
 	public static final int MAX_LENGTH = 255;
 
 	@Getter
@@ -18,14 +18,14 @@ public class UserName {
 	@NonNull
 	String value;
 
-	private UserName(String value) {
+	private Name(String value) {
 		require(isValid(value));
 		this.value = value;
 	}
 
 	@JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-	public static UserName of(String value) {
-		return new UserName(value);
+	public static Name of(String value) {
+		return new Name(value);
 	}
 
 	public static boolean isValid(String value) {
