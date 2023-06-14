@@ -15,8 +15,11 @@ public class FlightAuthorizationConfigurationProperties {
 
 	private final String url;
 
-	public FlightAuthorizationConfigurationProperties(String url) {
+	private final boolean mockDevices;
+
+	public FlightAuthorizationConfigurationProperties(String url, boolean mockDevices) {
 		require(isValidURL(url), "url must be valid");
 		this.url = url;
+		this.mockDevices = mockDevices;
 	}
 }

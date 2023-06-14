@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.dji.sample.flightauthorization.api.command.CreateFlightAuthorizationRequestCommand;
 import com.dji.sample.flightauthorization.api.view.FlightAuthorizationListView;
+import com.dji.sample.flightauthorization.config.FlightAuthorizationConfigurationProperties;
 import com.dji.sample.flightauthorization.domain.entity.FlightAuthorization;
 import com.dji.sample.flightauthorization.domain.service.FlightAuthorizationService;
 import com.dji.sample.flightauthorization.domain.value.Name;
@@ -38,15 +39,19 @@ public class FlightAuthorizationApplicationService {
 	private final USSPFlightAuthorizationRepository usspFlightAuthorizationRepository;
 	private final IDeviceService deviceService;
 
+	private final FlightAuthorizationConfigurationProperties configurationProperties;
+
 	public FlightAuthorizationApplicationService(
 		WaylineService waylineService,
 		FlightAuthorizationService flightAuthorizationService,
 		USSPFlightAuthorizationRepository usspFlightAuthorizationRepository,
-		IDeviceService deviceService) {
+		IDeviceService deviceService,
+		FlightAuthorizationConfigurationProperties configurationProperties) {
 		this.waylineService = waylineService;
 		this.flightAuthorizationService = flightAuthorizationService;
 		this.usspFlightAuthorizationRepository = usspFlightAuthorizationRepository;
 		this.deviceService = deviceService;
+		this.configurationProperties = configurationProperties;
 	}
 
 	public FlightAuthorizationRequestView submitRequest(String workspaceId, String username,
@@ -112,13 +117,6 @@ public class FlightAuthorizationApplicationService {
 
 	private SubmitFlightAuthorizationRequestCommand convertDataToSubmissionCommand(
 		CreateFlightAuthorizationRequestCommand command, Wayline wayline) {
-		List<UnmannedAircraftCommand> unmannedAircrafts = deviceService.getDevicesByParams(
-				DeviceQueryParam.builder()
-					.deviceSn(command.getUasSerialNumber())
-					.build())
-			.stream()
-			.map(this::convertDeviceToCommand)
-			.collect(Collectors.toList());
 
 		OperationalVolumeCommand operationalVolumeCommand = OperationalVolumeCommand.builder()
 			.area(wayline.getOperationalVolume().getArea())
@@ -136,11 +134,28 @@ public class FlightAuthorizationApplicationService {
 			.operationalVolume(operationalVolumeCommand)
 			.modeOfOperation(command.getModeOfOperation())
 			.typeOfFlight(TypeOfFlight.STANDARD)
-			.unmannedAircrafts(unmannedAircrafts)
+			.unmannedAircrafts(getUnmannedAircraftCommands(command.getUasSerialNumber()))
 			.correlationId(null)
 			.safetyLandingPoints(null)
 			.flightPath(wayline.getFlightPath())
 			.build();
+	}
+
+	private List<UnmannedAircraftCommand> getUnmannedAircraftCommands(String serialNumber) {
+		if(configurationProperties.isMockDevices()){
+			return List.of(
+				convertDeviceToCommand(DeviceDTO.builder()
+					.registrationNumber("DJI.TEST-123")
+					.deviceSn("321-456-n67-1-2")
+					.build()));
+		}
+		return deviceService.getDevicesByParams(
+				DeviceQueryParam.builder()
+					.deviceSn(serialNumber)
+					.build())
+			.stream()
+			.map(this::convertDeviceToCommand)
+			.collect(Collectors.toList());
 	}
 
 	private UnmannedAircraftCommand convertDeviceToCommand(DeviceDTO device) {

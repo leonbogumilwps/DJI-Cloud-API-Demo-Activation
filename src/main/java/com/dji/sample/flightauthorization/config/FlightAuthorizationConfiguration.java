@@ -46,7 +46,7 @@ public class FlightAuthorizationConfiguration {
 	@Bean
 	public FlightAuthorizationApplicationService flightAuthorizationApplicationService() {
 		return new FlightAuthorizationApplicationService(waylineService(), flightAuthorizationService(),
-			usspFlightAuthorizationRepository(), deviceService);
+			usspFlightAuthorizationRepository(), deviceService, flightAuthorizationConfigurationProperties);
 	}
 
 	@Bean

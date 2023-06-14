@@ -83,6 +83,7 @@ url:
 
 ussp:
   url: http://localhost:8080/uas/api/v1
+  mockDevices: true
 
 # Tutorial: https://www.alibabacloud.com/help/en/object-storage-service/latest/use-a-temporary-credential-provided-by-sts-to-access-oss
 #oss:
