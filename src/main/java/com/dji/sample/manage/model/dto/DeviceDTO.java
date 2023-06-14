@@ -31,6 +31,8 @@ public class DeviceDTO {
 
     private String childDeviceSn;
 
+    private String registrationNumber;
+
     private Integer domain;
 
     private Integer type;

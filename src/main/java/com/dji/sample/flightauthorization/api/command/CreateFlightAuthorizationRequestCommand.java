@@ -1,7 +1,6 @@
 package com.dji.sample.flightauthorization.api.command;
 
 import java.time.Instant;
-import java.util.List;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -39,7 +38,7 @@ public class CreateFlightAuthorizationRequestCommand {
 	private ModeOfOperation modeOfOperation;
 	@NotNull
 	@NotEmpty
-	private List<Integer> droneIds;
+	private String uasSerialNumber;
 	@NotNull
 	private String waylineId;
 }

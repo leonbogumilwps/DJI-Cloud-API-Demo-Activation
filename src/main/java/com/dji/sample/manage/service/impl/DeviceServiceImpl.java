@@ -627,6 +627,7 @@ public class DeviceServiceImpl implements IDeviceService {
                 .childDeviceSn(entity.getChildSn())
                 .deviceName(entity.getDeviceName())
                 .deviceDesc(entity.getDeviceDesc())
+                .registrationNumber(entity.getRegistrationNumber())
                 .controlSource(entity.getDeviceIndex())
                 .workspaceId(entity.getWorkspaceId())
                 .type(entity.getDeviceType())

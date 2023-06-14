@@ -31,6 +31,9 @@ public class DeviceEntity implements Serializable {
     @TableField(value = "device_name")
     private String deviceName;
 
+    @TableField(value = "registration_number")
+    private String registrationNumber;
+
     @TableField(value = "workspace_id")
     private String workspaceId;
 
