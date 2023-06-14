@@ -38,7 +38,6 @@ public class FlightAuthorization extends AbstractEntity {
 	@Embedded
 	private ExecutionTimeframe timeframe;
 
-	@Setter
 	private USSPFlightOperationId usspFlightOperationId;
 
 	@Enumerated(EnumType.STRING)
@@ -60,7 +59,8 @@ public class FlightAuthorization extends AbstractEntity {
 		Description description,
 		Instant takeOffTime,
 		Instant landingTime,
-		ModeOfOperation modeOfOperation) {
+		ModeOfOperation modeOfOperation,
+		USSPFlightOperationId usspFlightOperationId) {
 		this.username = username;
 		this.workspaceId = workspaceId;
 		this.waylineId = waylineId;
@@ -68,5 +68,6 @@ public class FlightAuthorization extends AbstractEntity {
 		this.description = description;
 		this.timeframe = new ExecutionTimeframe(takeOffTime, landingTime);
 		this.modeOfOperation = modeOfOperation;
+		this.usspFlightOperationId = usspFlightOperationId;
 	}
 }

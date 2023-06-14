@@ -20,6 +20,7 @@ import com.dji.sample.common.model.CustomClaim;
 import com.dji.sample.flightauthorization.api.command.CreateFlightAuthorizationRequestCommand;
 import com.dji.sample.flightauthorization.api.view.FlightAuthorizationListView;
 import com.dji.sample.flightauthorization.applicationservice.FlightAuthorizationApplicationService;
+import com.dji.sample.flightauthorization.ussp.exception.SubmissionFailedException;
 import com.dji.sample.flightauthorization.ussp.view.FlightAuthorizationRequestView;
 
 import lombok.NonNull;
@@ -56,13 +57,20 @@ public class FlightAuthorizationRequestController {
 	}
 
 	@PostMapping("{workspace_id}/create")
-	public ResponseEntity<FlightAuthorizationRequestView> createRequest(
+	public ResponseEntity createRequest(
 		@PathVariable("workspace_id") String workspaceId,
 		@RequestBody @Valid CreateFlightAuthorizationRequestCommand command,
 		HttpServletRequest request) {
 		guard.createRequest(workspaceId, request);
 		CustomClaim customClaim = (CustomClaim) request.getAttribute(TOKEN_CLAIM);
-		return applicationService.submitRequest(workspaceId, customClaim.getUsername(), command);
+		try {
+			return ResponseEntity
+				.ok(applicationService.submitRequest(workspaceId, customClaim.getUsername(), command));
+		} catch (SubmissionFailedException e) {
+			return ResponseEntity
+				.status(e.getStatus())
+				.body(e.getMessage());
+		}
 	}
 
 	@PutMapping("{workspace_id}/{id}/cancel")
