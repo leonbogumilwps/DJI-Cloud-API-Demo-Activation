@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NonNull;
 
 @EqualsAndHashCode
-public class USSPId {
+public class USSPFlightOperationId {
 	public static final int MAX_LENGTH = 255;
 
 	@Getter
@@ -18,14 +18,14 @@ public class USSPId {
 	@NonNull
 	String value;
 
-	private USSPId(String value) {
+	private USSPFlightOperationId(String value) {
 		require(isValid(value));
 		this.value = value;
 	}
 
 	@JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-	public static USSPId of(String value) {
-		return new USSPId(value);
+	public static USSPFlightOperationId of(String value) {
+		return new USSPFlightOperationId(value);
 	}
 
 	public static boolean isValid(String value) {

@@ -1,6 +1,5 @@
 package com.dji.sample.flightauthorization.applicationservice;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,7 +11,7 @@ import com.dji.sample.flightauthorization.api.command.CreateFlightAuthorizationR
 import com.dji.sample.flightauthorization.api.view.FlightAuthorizationListView;
 import com.dji.sample.flightauthorization.domain.entity.FlightAuthorization;
 import com.dji.sample.flightauthorization.domain.value.Name;
-import com.dji.sample.flightauthorization.domain.value.USSPId;
+import com.dji.sample.flightauthorization.domain.value.USSPFlightOperationId;
 import com.dji.sample.flightauthorization.domain.value.WaylineFileId;
 import com.dji.sample.flightauthorization.domain.value.WorkspaceId;
 import com.dji.sample.flightauthorization.ussp.USSPFlightAuthorizationRepository;
@@ -110,7 +109,7 @@ public class FlightAuthorizationApplicationService {
 			ResponseEntity<FlightAuthorizationRequestView> flightRequestSubmission = usspFlightAuthorizationRepository
 				.findByFlightOperationId(submissionResponse.getBody());
 
-			flightAuthorization.setUsspId(USSPId.of(flightRequestSubmission.getBody().getFlightOperationId()));
+			flightAuthorization.setUsspFlightOperationId(USSPFlightOperationId.of(flightRequestSubmission.getBody().getFlightOperationId()));
 			flightAuthorization.setAuthorisationStatus(
 				flightRequestSubmission.getBody().getStatus().getAuthorisationStatus());
 			flightAuthorization.setActivationStatus(
@@ -132,12 +131,12 @@ public class FlightAuthorizationApplicationService {
 
 	public ResponseEntity<FlightAuthorizationRequestView> getRequest(Long id) {
 		FlightAuthorization authorization = flightAuthorizationService.get(id);
-		return usspFlightAuthorizationRepository.findByFlightOperationId(authorization.getUsspId().toString());
+		return usspFlightAuthorizationRepository.findByFlightOperationId(authorization.getUsspFlightOperationId().toString());
 	}
 
 	public void cancelRequest(Long id) {
 		FlightAuthorization authorization = flightAuthorizationService.get(id);
-		usspFlightAuthorizationRepository.cancelByFlightOperationId(authorization.getUsspId().toString());
+		usspFlightAuthorizationRepository.cancelByFlightOperationId(authorization.getUsspFlightOperationId().toString());
 	}
 
 	private UnmannedAircraftCommand convertDeviceToCommand(DeviceDTO device) {
