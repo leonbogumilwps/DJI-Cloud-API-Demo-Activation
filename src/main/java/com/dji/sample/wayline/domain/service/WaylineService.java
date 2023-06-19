@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -44,8 +45,9 @@ public class WaylineService {
 		this.geometryFactory = new GeometryFactory();
 	}
 
-	public Wayline getWayline(String workspaceId, String waylineId) throws EntityNotFoundException, WaylineReadException {
-		try (InputStream waylineInputStream = waylineFileService.getObject(workspaceId, waylineId)){
+	public Wayline getWayline(String workspaceId, String waylineId)
+		throws EntityNotFoundException, WaylineReadException {
+		try (InputStream waylineInputStream = waylineFileService.getObject(workspaceId, waylineId)) {
 			return readWaylineInputStream(waylineInputStream);
 		} catch (IOException e) {
 			log.error("Cannot read waylinefile since the inputstream has been closed already");
@@ -78,18 +80,17 @@ public class WaylineService {
 			PayloadType payloadType = PayloadType.find(payloadCode);
 			PayloadSubType payloadSubType = PayloadSubType.find(payloadSubCode);
 
-			WaylineTemplateTypeEnum templateType = WaylineTemplateTypeEnum.find(
-					document.valueOf(
-						"//" + KmzFileProperties.TAG_WPML_PREFIX + KmzFileProperties.TAG_TEMPLATE_TYPE))
+			Node folderNode = document.selectSingleNode("//*[local-name()='Folder']");
+			WaylineTemplateTypeEnum templateType = WaylineTemplateTypeEnum.find(folderNode.valueOf(
+					KmzFileProperties.TAG_WPML_PREFIX + KmzFileProperties.TAG_TEMPLATE_TYPE))
 				.orElseThrow(() -> new WaylineReadException("Template Type not supported."));
 
 			// Read content as if template has waypoints only, otherwise the placemarks would contain different geoms
 			if (!templateType.equals(WaylineTemplateTypeEnum.WAYPOINT)) {
 				throw new WaylineReadException("Template Type not supported.");
 			}
-			Node folderNode = document.selectSingleNode("Folder");
 
-			List<Node> placemarkNodes = folderNode.selectNodes("Placemark");
+			List<Node> placemarkNodes = folderNode.selectNodes("//*[local-name()='Placemark']");
 			List<Coordinate> flightPathCoordinates = readFlightRoute(placemarkNodes);
 
 			LineString flightPath = geometryFactory.createLineString(flightPathCoordinates.toArray(new Coordinate[0]));
@@ -107,7 +108,7 @@ public class WaylineService {
 			.filter(entry ->
 				entry.getName()
 					.equals(KmzFileProperties.FILE_DIR_FIRST + "/" + KmzFileProperties.FILE_DIR_SECOND_TEMPLATE))
-			.isPresent()) {
+			.isEmpty()) {
 			nextEntry = Optional.of(zipInputStream.getNextEntry());
 		}
 		return nextEntry.orElseThrow(() -> new FileNotFoundException("Template File could not be found"));
@@ -117,14 +118,15 @@ public class WaylineService {
 		Map<Integer, Coordinate> pointsMap = new TreeMap<>();
 		for (Node node : placemarkNodes) {
 			double height = node.numberValueOf(KmzFileProperties.TAG_WPML_PREFIX + "height").doubleValue();
-			Node pointNode = node.selectSingleNode("Point");
-			String coordinates = pointNode.valueOf("coordinates");
+			Node pointNode = node.selectSingleNode("./*[local-name()='Point']");
+			Node coordinatesNode = pointNode.selectSingleNode("./*[local-name()='coordinates']");
+			String coordinates = coordinatesNode.getText();
 			double longitude = Double.parseDouble(coordinates.split(",")[0]);
 			double latitude = Double.parseDouble(coordinates.split(",")[1]);
 			int index = node.numberValueOf(KmzFileProperties.TAG_WPML_PREFIX + "index").intValue();
 			pointsMap.put(index, new Coordinate(longitude, latitude, height));
 		}
-		return (List<Coordinate>) pointsMap.values();
+		return new ArrayList<>(pointsMap.values());
 	}
 
 }

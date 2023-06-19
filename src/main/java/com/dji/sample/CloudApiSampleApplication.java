@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @MapperScan("com.dji.sample.*.dao")
 @SpringBootApplication
 @EnableScheduling
-@ConfigurationPropertiesScan
 //@EnableConfigurationProperties(OssConfiguration.class)
 public class CloudApiSampleApplication {
 

@@ -3,8 +3,8 @@ package com.dji.sample.flightauthorization.ussp.dto.request;
 import java.time.Instant;
 import java.util.List;
 
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.MultiPoint;
+import org.geojson.LineString;
+import org.geojson.MultiPoint;
 
 import com.dji.sample.flightauthorization.domain.value.ModeOfOperation;
 import com.dji.sample.flightauthorization.ussp.dto.common.OperationalVolume;

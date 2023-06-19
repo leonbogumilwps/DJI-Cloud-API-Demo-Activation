@@ -20,7 +20,6 @@ import lombok.ToString;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @ToString
-@Validated
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateFlightOperationRequestDTO {

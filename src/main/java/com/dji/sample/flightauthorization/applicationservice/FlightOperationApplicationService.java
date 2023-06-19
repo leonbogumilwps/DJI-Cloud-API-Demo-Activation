@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.geojson.LngLatAlt;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
@@ -138,7 +139,7 @@ public class FlightOperationApplicationService {
 			.unmannedAircrafts(getUnmannedAircraftCommands(createFlightOperationRequestDTO.getUasSerialNumber()))
 			.correlationId(null)
 			.safetyLandingPoints(null)
-			.flightPath(wayline.getFlightPath())
+			.flightPath(createLineStringGeoJSON(wayline.getFlightPath()))
 			.build();
 	}
 
@@ -175,16 +176,37 @@ public class FlightOperationApplicationService {
 		LineString flightPath = wayline.getFlightPath();
 
 		// https://docs.geotools.org/latest/userguide/library/jts/operation.html
-		Polygon flightArea = (Polygon) flightPath.buffer(10);
+		Polygon flightArea = (Polygon) flightPath.buffer(0.001);
 
 		List<Coordinate> flightPathCoordinates = Arrays.asList(flightPath.getCoordinates());
 		double minHeight = flightPathCoordinates.stream().map(Coordinate::getZ).min(Double::compare).get();
 		double maxHeight = flightPathCoordinates.stream().map(Coordinate::getZ).max(Double::compare).get();
 
 		return OperationalVolume.builder()
-			.area(flightArea)
+			.area(createPolygonGeoJSON(flightArea))
 			.minHeightInMeter(minHeight)
 			.maxHeightInMeter(maxHeight)
 			.build();
+	}
+
+	private org.geojson.LineString createLineStringGeoJSON(LineString lineString){
+		LngLatAlt[] lngLatAlts = parseCoordinates(lineString.getCoordinates());
+		return new org.geojson.LineString(lngLatAlts);
+	}
+
+	private org.geojson.Polygon createPolygonGeoJSON(Polygon polygon) {
+		if (polygon.getNumInteriorRing() > 0) {
+			throw new RuntimeException("Polygone mit Löchern werden momentan nicht unterstützt.");
+		}
+		LngLatAlt[] lngLatAlts = parseCoordinates(polygon.getCoordinates());
+		return new org.geojson.Polygon(Arrays.asList(lngLatAlts));
+	}
+
+	private LngLatAlt[] parseCoordinates(Coordinate[] coordinates) {
+		LngLatAlt[] lngLatAlts = new LngLatAlt[coordinates.length];
+		for (int i = 0; i < coordinates.length; i++) {
+			lngLatAlts[i] = new LngLatAlt(coordinates[i].x, coordinates[i].y, coordinates[i].z);
+		}
+		return lngLatAlts;
 	}
 }

@@ -1,6 +1,6 @@
 package com.dji.sample.flightauthorization.ussp.dto.common;
 
-import org.locationtech.jts.geom.Polygon;
+import org.geojson.Polygon;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

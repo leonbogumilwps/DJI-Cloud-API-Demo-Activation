@@ -4,8 +4,6 @@ import static com.dji.sample.component.AuthInterceptor.TOKEN_CLAIM;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.access.AccessDeniedException;
-
 import com.dji.sample.common.model.CustomClaim;
 
 public class FlightOperationRequestGuard {
@@ -28,8 +26,8 @@ public class FlightOperationRequestGuard {
 
 	private void checkUserHasPermissionsForWorkspace(String workspaceId, HttpServletRequest request) {
 		CustomClaim customClaim = (CustomClaim) request.getAttribute(TOKEN_CLAIM);
-		if (workspaceId != customClaim.getWorkspaceId()) {
-			throw new AccessDeniedException("You are not authorized for given workspace.");
+		if (!workspaceId.equals(customClaim.getWorkspaceId())) {
+			throw new RuntimeException("You are not authorized for given workspace.");
 		}
 	}
 }

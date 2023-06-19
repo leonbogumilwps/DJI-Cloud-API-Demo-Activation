@@ -2,6 +2,7 @@ package com.dji.sample.flightauthorization.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -19,6 +20,7 @@ import com.dji.sample.wayline.service.IWaylineFileService;
 @Configuration
 @EnableJpaRepositories(basePackages = "com.dji.sample.flightauthorization.repository")
 @EntityScan(basePackages = "com.dji.sample.flightauthorization.domain.entity")
+@ConfigurationPropertiesScan
 public class FlightOperationConfiguration {
 
 	@Autowired
