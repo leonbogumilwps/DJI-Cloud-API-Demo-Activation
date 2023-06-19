@@ -6,11 +6,11 @@ import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.dji.sample.flightauthorization.api.command.CreateFlightAuthorizationRequestCommand;
-import com.dji.sample.flightauthorization.api.view.FlightAuthorizationListView;
-import com.dji.sample.flightauthorization.config.FlightAuthorizationConfigurationProperties;
-import com.dji.sample.flightauthorization.domain.entity.FlightAuthorization;
-import com.dji.sample.flightauthorization.domain.service.FlightAuthorizationService;
+import com.dji.sample.flightauthorization.api.request.CreateFlightOperationRequestDTO;
+import com.dji.sample.flightauthorization.api.response.FlightOperationListDTO;
+import com.dji.sample.flightauthorization.config.FlightOperationConfigurationProperties;
+import com.dji.sample.flightauthorization.domain.entity.FlightOperation;
+import com.dji.sample.flightauthorization.domain.service.FlightOperationService;
 import com.dji.sample.flightauthorization.domain.value.Name;
 import com.dji.sample.flightauthorization.domain.value.USSPFlightOperationId;
 import com.dji.sample.flightauthorization.domain.value.WaylineFileId;
@@ -32,30 +32,30 @@ import com.dji.sample.wayline.domain.entity.Wayline;
 import com.dji.sample.wayline.domain.exception.WaylineReadException;
 import com.dji.sample.wayline.domain.service.WaylineService;
 
-public class FlightAuthorizationApplicationService {
+public class FlightOperationApplicationService {
 
 	private final WaylineService waylineService;
-	private final FlightAuthorizationService flightAuthorizationService;
+	private final FlightOperationService flightOperationService;
 	private final USSPFlightAuthorizationRepository usspFlightAuthorizationRepository;
 	private final IDeviceService deviceService;
 
-	private final FlightAuthorizationConfigurationProperties configurationProperties;
+	private final FlightOperationConfigurationProperties configurationProperties;
 
-	public FlightAuthorizationApplicationService(
+	public FlightOperationApplicationService(
 		WaylineService waylineService,
-		FlightAuthorizationService flightAuthorizationService,
+		FlightOperationService flightOperationService,
 		USSPFlightAuthorizationRepository usspFlightAuthorizationRepository,
 		IDeviceService deviceService,
-		FlightAuthorizationConfigurationProperties configurationProperties) {
+		FlightOperationConfigurationProperties configurationProperties) {
 		this.waylineService = waylineService;
-		this.flightAuthorizationService = flightAuthorizationService;
+		this.flightOperationService = flightOperationService;
 		this.usspFlightAuthorizationRepository = usspFlightAuthorizationRepository;
 		this.deviceService = deviceService;
 		this.configurationProperties = configurationProperties;
 	}
 
 	public FlightAuthorizationRequestView submitRequest(String workspaceId, String username,
-		CreateFlightAuthorizationRequestCommand command) throws SubmissionFailedException {
+		CreateFlightOperationRequestDTO command) throws SubmissionFailedException {
 		try {
 			Wayline wayline = waylineService.getWayline(workspaceId, command.getWaylineId());
 
@@ -67,8 +67,8 @@ public class FlightAuthorizationApplicationService {
 					"Submission returned StatusCode " + submissionResponse.getStatusCode());
 			}
 
-			FlightAuthorization flightAuthorization = flightAuthorizationService.save(
-				new FlightAuthorization(
+			FlightOperation flightOperation = flightOperationService.save(
+				new FlightOperation(
 					Name.of(username),
 					WorkspaceId.of(workspaceId),
 					WaylineFileId.of(command.getWaylineId()),
@@ -84,11 +84,11 @@ public class FlightAuthorizationApplicationService {
 			FlightAuthorizationRequestView flightRequestSubmission = usspFlightAuthorizationRepository
 				.findByFlightOperationId(submissionResponse.getBody()).getBody();
 
-			flightAuthorization.setAuthorisationStatus(
+			flightOperation.setAuthorisationStatus(
 				flightRequestSubmission.getStatus().getAuthorisationStatus());
-			flightAuthorization.setActivationStatus(
+			flightOperation.setActivationStatus(
 				flightRequestSubmission.getActivationStatus().getActivationStatus());
-			flightAuthorizationService.save(flightAuthorization);
+			flightOperationService.save(flightOperation);
 
 			return flightRequestSubmission;
 		} catch (WaylineReadException e) {
@@ -96,27 +96,27 @@ public class FlightAuthorizationApplicationService {
 		}
 	}
 
-	public List<FlightAuthorizationListView> getAllRequests() {
-		return flightAuthorizationService.getAll()
+	public List<FlightOperationListDTO> getAllRequests() {
+		return flightOperationService.getAll()
 			.stream()
-			.map(FlightAuthorizationListView::new)
+			.map(FlightOperationListDTO::new)
 			.collect(Collectors.toList());
 	}
 
 	public ResponseEntity<FlightAuthorizationRequestView> getRequest(Long id) {
-		FlightAuthorization authorization = flightAuthorizationService.get(id);
+		FlightOperation authorization = flightOperationService.get(id);
 		return usspFlightAuthorizationRepository.findByFlightOperationId(
 			authorization.getUsspFlightOperationId().toString());
 	}
 
 	public void cancelRequest(Long id) {
-		FlightAuthorization authorization = flightAuthorizationService.get(id);
+		FlightOperation authorization = flightOperationService.get(id);
 		usspFlightAuthorizationRepository.cancelByFlightOperationId(
 			authorization.getUsspFlightOperationId().toString());
 	}
 
 	private SubmitFlightAuthorizationRequestCommand convertDataToSubmissionCommand(
-		CreateFlightAuthorizationRequestCommand command, Wayline wayline) {
+		CreateFlightOperationRequestDTO command, Wayline wayline) {
 
 		OperationalVolumeCommand operationalVolumeCommand = OperationalVolumeCommand.builder()
 			.area(wayline.getOperationalVolume().getArea())

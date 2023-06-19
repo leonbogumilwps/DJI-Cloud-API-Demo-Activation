@@ -11,13 +11,13 @@ import lombok.Getter;
 @Getter
 @ConstructorBinding
 @ConfigurationProperties("ussp")
-public class FlightAuthorizationConfigurationProperties {
+public class FlightOperationConfigurationProperties {
 
 	private final String url;
 
 	private final boolean mockDevices;
 
-	public FlightAuthorizationConfigurationProperties(String url, boolean mockDevices) {
+	public FlightOperationConfigurationProperties(String url, boolean mockDevices) {
 		require(isValidURL(url), "url must be valid");
 		this.url = url;
 		this.mockDevices = mockDevices;

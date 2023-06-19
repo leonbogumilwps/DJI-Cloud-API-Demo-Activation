@@ -8,7 +8,7 @@ import org.springframework.security.access.AccessDeniedException;
 
 import com.dji.sample.common.model.CustomClaim;
 
-public class FlightAuthorizationRequestGuard {
+public class FlightOperationRequestGuard {
 
 	public void getAllRequests(String workspaceId, HttpServletRequest request) {
 		checkUserHasPermissionsForWorkspace(workspaceId, request);

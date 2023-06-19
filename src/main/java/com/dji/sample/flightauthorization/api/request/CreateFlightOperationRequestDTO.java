@@ -1,4 +1,4 @@
-package com.dji.sample.flightauthorization.api.command;
+package com.dji.sample.flightauthorization.api.request;
 
 import java.time.Instant;
 
@@ -23,7 +23,7 @@ import lombok.ToString;
 @Validated
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateFlightAuthorizationRequestCommand {
+public class CreateFlightOperationRequestDTO {
 
 	@NotNull
 	private String uasOperatorRegistrationNumber;

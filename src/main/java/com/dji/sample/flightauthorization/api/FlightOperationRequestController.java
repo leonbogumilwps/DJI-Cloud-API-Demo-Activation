@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dji.sample.common.model.CustomClaim;
-import com.dji.sample.flightauthorization.api.command.CreateFlightAuthorizationRequestCommand;
-import com.dji.sample.flightauthorization.api.view.FlightAuthorizationListView;
-import com.dji.sample.flightauthorization.applicationservice.FlightAuthorizationApplicationService;
+import com.dji.sample.flightauthorization.api.request.CreateFlightOperationRequestDTO;
+import com.dji.sample.flightauthorization.api.response.FlightOperationListDTO;
+import com.dji.sample.flightauthorization.applicationservice.FlightOperationApplicationService;
 import com.dji.sample.flightauthorization.ussp.exception.SubmissionFailedException;
 import com.dji.sample.flightauthorization.ussp.view.FlightAuthorizationRequestView;
 
@@ -27,20 +27,20 @@ import lombok.NonNull;
 
 @RestController
 @RequestMapping("${url.flight-authorization-request.version}${url.flight-authorization-request.prefix}")
-public class FlightAuthorizationRequestController {
+public class FlightOperationRequestController {
 
-	private final FlightAuthorizationRequestGuard guard;
-	private final FlightAuthorizationApplicationService applicationService;
+	private final FlightOperationRequestGuard guard;
+	private final FlightOperationApplicationService applicationService;
 
-	public FlightAuthorizationRequestController(
-		@NonNull FlightAuthorizationRequestGuard flightAuthorizationRequestGuard,
-		@NonNull FlightAuthorizationApplicationService flightAuthorizationApplicationService) {
-		this.guard = flightAuthorizationRequestGuard;
-		this.applicationService = flightAuthorizationApplicationService;
+	public FlightOperationRequestController(
+		@NonNull FlightOperationRequestGuard flightOperationRequestGuard,
+		@NonNull FlightOperationApplicationService flightOperationApplicationService) {
+		this.guard = flightOperationRequestGuard;
+		this.applicationService = flightOperationApplicationService;
 	}
 
 	@GetMapping("{workspace_id}")
-	public List<FlightAuthorizationListView> getAllRequests(
+	public List<FlightOperationListDTO> getAllRequests(
 		@PathVariable("workspace_id") String workspaceId,
 		HttpServletRequest request) {
 		guard.getAllRequests(workspaceId, request);
@@ -59,7 +59,7 @@ public class FlightAuthorizationRequestController {
 	@PostMapping("{workspace_id}/create")
 	public ResponseEntity createRequest(
 		@PathVariable("workspace_id") String workspaceId,
-		@RequestBody @Valid CreateFlightAuthorizationRequestCommand command,
+		@RequestBody @Valid CreateFlightOperationRequestDTO command,
 		HttpServletRequest request) {
 		guard.createRequest(workspaceId, request);
 		CustomClaim customClaim = (CustomClaim) request.getAttribute(TOKEN_CLAIM);

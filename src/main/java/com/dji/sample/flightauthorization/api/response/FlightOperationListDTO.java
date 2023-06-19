@@ -1,6 +1,6 @@
-package com.dji.sample.flightauthorization.api.view;
+package com.dji.sample.flightauthorization.api.response;
 
-import com.dji.sample.flightauthorization.domain.entity.FlightAuthorization;
+import com.dji.sample.flightauthorization.domain.entity.FlightOperation;
 import com.dji.sample.flightauthorization.domain.value.AuthorisationStatus;
 import com.dji.sample.flightauthorization.domain.value.Description;
 import com.dji.sample.flightauthorization.domain.value.ExecutionTimeframe;
@@ -12,7 +12,7 @@ import com.dji.sample.flightauthorization.domain.value.ActivationStatus;
 import lombok.Getter;
 
 @Getter
-public class FlightAuthorizationListView {
+public class FlightOperationListDTO {
 
 	private final Long id;
 	private final Name username;
@@ -23,7 +23,7 @@ public class FlightAuthorizationListView {
 	private final AuthorisationStatus authorisationStatus;
 	private final ActivationStatus activationStatus;
 
-	public FlightAuthorizationListView(FlightAuthorization authorization) {
+	public FlightOperationListDTO(FlightOperation authorization) {
 		this.id = authorization.getId();
 		this.username = authorization.getUsername();
 		this.title = authorization.getTitle();

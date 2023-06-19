@@ -32,12 +32,12 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class FlightAuthorization {
+public class FlightOperation {
 
 	@Id
 	@GeneratedValue
 	@Getter
-	protected Long id;
+	private Long id;
 	private Name username;
 
 	private WorkspaceId workspaceId;
@@ -64,7 +64,7 @@ public class FlightAuthorization {
 	@Setter
 	private AuthorisationStatus authorisationStatus;
 
-	public FlightAuthorization(
+	public FlightOperation(
 		Name username,
 		WorkspaceId workspaceId,
 		WaylineFileId waylineId,
