@@ -81,16 +81,16 @@ public class FlightAuthorizationApplicationService {
 				));
 
 			//TODO: either keep fetching or wait 5 seconds to pull status
-			ResponseEntity<FlightAuthorizationRequestView> flightRequestSubmission = usspFlightAuthorizationRepository
-				.findByFlightOperationId(submissionResponse.getBody());
+			FlightAuthorizationRequestView flightRequestSubmission = usspFlightAuthorizationRepository
+				.findByFlightOperationId(submissionResponse.getBody()).getBody();
 
 			flightAuthorization.setAuthorisationStatus(
-				flightRequestSubmission.getBody().getStatus().getAuthorisationStatus());
+				flightRequestSubmission.getStatus().getAuthorisationStatus());
 			flightAuthorization.setActivationStatus(
-				flightRequestSubmission.getBody().getActivationStatus().getActivationStatus());
+				flightRequestSubmission.getActivationStatus().getActivationStatus());
 			flightAuthorizationService.save(flightAuthorization);
 
-			return flightRequestSubmission.getBody();
+			return flightRequestSubmission;
 		} catch (WaylineReadException e) {
 			throw new SubmissionFailedException(HttpStatus.BAD_REQUEST, "Failed to read Wayline file.");
 		}
