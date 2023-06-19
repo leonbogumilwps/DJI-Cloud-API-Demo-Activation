@@ -63,8 +63,11 @@ public class FlightOperationApplicationService {
 		try {
 			Wayline wayline = waylineService.getWayline(workspaceId, requestDto.getWaylineId());
 
+			SubmitFlightAuthorizationRequestDTO submitFlightAuthorizationRequestDTO = convertDataToSubmissionDTO(
+				requestDto, wayline);
 			ResponseEntity<String> submissionResponse = usspFlightAuthorizationRepository.submitRequest(
-				convertDataToSubmissionDTO(requestDto, wayline));
+				submitFlightAuthorizationRequestDTO
+			);
 
 			if (submissionResponse.getStatusCode() != HttpStatus.OK) {
 				throw new SubmissionFailedException(submissionResponse.getStatusCode(),

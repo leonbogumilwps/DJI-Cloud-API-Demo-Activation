@@ -11,7 +11,7 @@ import lombok.NonNull;
 
 @EqualsAndHashCode
 public class Name {
-	public static final int MAX_LENGTH = 255;
+	public static final int MAX_LENGTH = 64;
 
 	@Getter
 	@JsonValue

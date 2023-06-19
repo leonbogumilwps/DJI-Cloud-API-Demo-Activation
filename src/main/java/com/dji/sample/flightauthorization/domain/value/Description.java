@@ -2,6 +2,9 @@ package com.dji.sample.flightauthorization.domain.value;
 
 import static org.valid4j.Assertive.require;
 
+import org.hibernate.annotations.TypeDef;
+
+import com.dji.sample.flightauthorization.domain.value.usertype.DescriptionUserType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 

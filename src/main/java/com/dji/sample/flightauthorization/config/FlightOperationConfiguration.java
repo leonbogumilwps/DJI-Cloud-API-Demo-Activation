@@ -17,8 +17,8 @@ import com.dji.sample.wayline.domain.service.WaylineService;
 import com.dji.sample.wayline.service.IWaylineFileService;
 
 @Configuration
-@EnableJpaRepositories
-@EntityScan
+@EnableJpaRepositories(basePackages = "com.dji.sample.flightauthorization.repository")
+@EntityScan(basePackages = "com.dji.sample.flightauthorization.domain.entity")
 public class FlightOperationConfiguration {
 
 	@Autowired

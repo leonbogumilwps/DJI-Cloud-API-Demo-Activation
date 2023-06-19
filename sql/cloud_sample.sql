@@ -468,6 +468,22 @@ CREATE TABLE `wayline_job` (
   UNIQUE KEY `job_id_UNIQUE` (`job_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='Wayline mission information of the dock.';
 
+DROP TABLE IF EXISTS `flight_operation`;
+
+CREATE TABLE `flight_operation` (
+    `id` bigint NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `username` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'The name of the creator.',
+    `workspace_id` varchar(45) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'Which workspace the current job belongs to.',
+    `wayline_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'uuid of used wayline file',
+    `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+    `description` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci,
+    `takeoff_time` timestamp NOT NULL,
+    `landing_time` timestamp NOT NULL,
+    `ussp_flight_operation_id`  varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+    `mode_of_operation` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+    `activation_status` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci,
+    `authorisation_status` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='Flight Operations with authorisation by USSP';
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

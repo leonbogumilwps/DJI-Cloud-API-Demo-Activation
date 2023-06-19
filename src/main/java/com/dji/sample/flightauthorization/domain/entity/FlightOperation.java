@@ -9,6 +9,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import org.hibernate.annotations.Type;
+
 import com.dji.sample.flightauthorization.domain.value.Description;
 import com.dji.sample.flightauthorization.domain.value.ExecutionTimeframe;
 import com.dji.sample.flightauthorization.domain.value.ModeOfOperation;
@@ -19,6 +21,7 @@ import com.dji.sample.flightauthorization.domain.value.WaylineFileId;
 import com.dji.sample.flightauthorization.domain.value.WorkspaceId;
 import com.dji.sample.flightauthorization.domain.value.ActivationStatus;
 import com.dji.sample.flightauthorization.domain.value.AuthorisationStatus;
+import com.dji.sample.flightauthorization.domain.value.usertype.DescriptionUserType;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -38,19 +41,26 @@ public class FlightOperation {
 	@GeneratedValue
 	@Getter
 	private Long id;
+
+	@Type(type = "com.dji.sample.flightauthorization.domain.value.usertype.NameUserType")
 	private Name username;
 
+	@Type(type = "com.dji.sample.flightauthorization.domain.value.usertype.WorkspaceIdUserType")
 	private WorkspaceId workspaceId;
 
+	@Type(type = "com.dji.sample.flightauthorization.domain.value.usertype.WaylineFileIdUserType")
 	private WaylineFileId waylineId;
 
+	@Type(type = "com.dji.sample.flightauthorization.domain.value.usertype.TitleUserType")
 	private Title title;
 
+	@Type(type = "com.dji.sample.flightauthorization.domain.value.usertype.DescriptionUserType")
 	private Description description;
 
 	@Embedded
 	private ExecutionTimeframe timeframe;
 
+	@Type(type = "com.dji.sample.flightauthorization.domain.value.usertype.USSPFlightOperationIdUserType")
 	private USSPFlightOperationId usspFlightOperationId;
 
 	@Enumerated(EnumType.STRING)
@@ -82,5 +92,7 @@ public class FlightOperation {
 		this.timeframe = new ExecutionTimeframe(takeOffTime, landingTime);
 		this.modeOfOperation = modeOfOperation;
 		this.usspFlightOperationId = usspFlightOperationId;
+		this.activationStatus = ActivationStatus.NOT_ACTIVATED;
+		this.authorisationStatus = AuthorisationStatus.RECEIVED;
 	}
 }

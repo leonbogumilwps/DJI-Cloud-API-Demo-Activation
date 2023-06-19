@@ -11,7 +11,7 @@ import lombok.NonNull;
 
 @EqualsAndHashCode
 public class WorkspaceId {
-	public static final int MAX_LENGTH = 255;
+	public static final int MAX_LENGTH = 45;
 
 	@Getter
 	@JsonValue
