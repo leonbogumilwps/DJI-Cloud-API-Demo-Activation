@@ -20,8 +20,8 @@ import com.dji.sample.common.model.CustomClaim;
 import com.dji.sample.flightauthorization.api.request.CreateFlightOperationRequestDTO;
 import com.dji.sample.flightauthorization.api.response.FlightOperationListDTO;
 import com.dji.sample.flightauthorization.applicationservice.FlightOperationApplicationService;
+import com.dji.sample.flightauthorization.ussp.dto.response.FlightOperationDetailDTO;
 import com.dji.sample.flightauthorization.ussp.exception.SubmissionFailedException;
-import com.dji.sample.flightauthorization.ussp.view.FlightAuthorizationRequestView;
 
 import lombok.NonNull;
 
@@ -48,7 +48,7 @@ public class FlightOperationRequestController {
 	}
 
 	@GetMapping("{workspace_id}/{id}")
-	public ResponseEntity<FlightAuthorizationRequestView> getRequest(
+	public ResponseEntity<FlightOperationDetailDTO> getRequest(
 		@PathVariable("workspace_id") String workspaceId,
 		@PathVariable("id") Long id,
 		HttpServletRequest request) {

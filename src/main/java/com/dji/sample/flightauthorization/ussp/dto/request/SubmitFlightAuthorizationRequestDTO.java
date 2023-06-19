@@ -1,4 +1,4 @@
-package com.dji.sample.flightauthorization.ussp.command;
+package com.dji.sample.flightauthorization.ussp.dto.request;
 
 import java.time.Instant;
 import java.util.List;
@@ -7,7 +7,9 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiPoint;
 
 import com.dji.sample.flightauthorization.domain.value.ModeOfOperation;
-import com.dji.sample.flightauthorization.ussp.view.TypeOfFlight;
+import com.dji.sample.flightauthorization.ussp.dto.common.OperationalVolume;
+import com.dji.sample.flightauthorization.ussp.dto.common.TypeOfFlight;
+import com.dji.sample.flightauthorization.ussp.dto.common.UnmannedAircraft;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AllArgsConstructor;
@@ -22,7 +24,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SubmitFlightAuthorizationRequestCommand {
+public class SubmitFlightAuthorizationRequestDTO {
 
 	private String uasOperatorRegistrationNumber;
 
@@ -34,13 +36,13 @@ public class SubmitFlightAuthorizationRequestCommand {
 
 	private Instant landingTime;
 
-	private OperationalVolumeCommand operationalVolume;
+	private OperationalVolume operationalVolume;
 
 	private ModeOfOperation modeOfOperation;
 
 	private TypeOfFlight typeOfFlight;
 
-	private List<UnmannedAircraftCommand> unmannedAircrafts;
+	private List<UnmannedAircraft> unmannedAircrafts;
 
 	private String correlationId;
 

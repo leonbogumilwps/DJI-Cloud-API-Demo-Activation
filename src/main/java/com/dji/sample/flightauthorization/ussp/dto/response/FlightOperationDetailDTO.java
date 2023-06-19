@@ -1,4 +1,4 @@
-package com.dji.sample.flightauthorization.ussp.view;
+package com.dji.sample.flightauthorization.ussp.dto.response;
 
 import java.time.Instant;
 import java.util.List;
@@ -7,6 +7,9 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiPoint;
 
 import com.dji.sample.flightauthorization.domain.value.ModeOfOperation;
+import com.dji.sample.flightauthorization.ussp.dto.common.OperationalVolume;
+import com.dji.sample.flightauthorization.ussp.dto.common.TypeOfFlight;
+import com.dji.sample.flightauthorization.ussp.dto.common.UnmannedAircraft;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,7 +19,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class FlightAuthorizationRequestView {
+public class FlightOperationDetailDTO {
 	private String flightOperationId;
 	private String correlationId;
 	private String uasOperatorRegistrationNumber;
@@ -24,10 +27,10 @@ public class FlightAuthorizationRequestView {
 	private String description;
 	private Instant takeOffTime;
 	private Instant landingTime;
-	private OperationalVolumeView operationalVolume;
+	private OperationalVolume operationalVolume;
 	private ModeOfOperation modeOfOperation;
 	private TypeOfFlight typeOfFlight;
-	private List<UnmannedAircraftView> unmannedAircrafts;
+	private List<UnmannedAircraft> unmannedAircrafts;
 	private MultiPoint safetyLandingPoints;
 	private LineString flightPath;
 	private AuthorizationStatusView status;

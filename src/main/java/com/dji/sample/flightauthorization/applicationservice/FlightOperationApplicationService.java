@@ -1,8 +1,12 @@
 package com.dji.sample.flightauthorization.applicationservice;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Polygon;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -16,15 +20,15 @@ import com.dji.sample.flightauthorization.domain.value.USSPFlightOperationId;
 import com.dji.sample.flightauthorization.domain.value.WaylineFileId;
 import com.dji.sample.flightauthorization.domain.value.WorkspaceId;
 import com.dji.sample.flightauthorization.ussp.USSPFlightAuthorizationRepository;
-import com.dji.sample.flightauthorization.ussp.command.OperationalVolumeCommand;
-import com.dji.sample.flightauthorization.ussp.command.SubmitFlightAuthorizationRequestCommand;
-import com.dji.sample.flightauthorization.ussp.command.UnmannedAircraftCommand;
+import com.dji.sample.flightauthorization.ussp.dto.common.OperationalVolume;
+import com.dji.sample.flightauthorization.ussp.dto.common.UnmannedAircraft;
+import com.dji.sample.flightauthorization.ussp.dto.request.SubmitFlightAuthorizationRequestDTO;
+import com.dji.sample.flightauthorization.ussp.dto.response.FlightOperationDetailDTO;
 import com.dji.sample.flightauthorization.ussp.exception.SubmissionFailedException;
-import com.dji.sample.flightauthorization.ussp.view.FlightAuthorizationRequestView;
-import com.dji.sample.flightauthorization.ussp.view.TypeOfFlight;
-import com.dji.sample.flightauthorization.ussp.view.UASCategory;
-import com.dji.sample.flightauthorization.ussp.view.UASIdentificationTechnology;
-import com.dji.sample.flightauthorization.ussp.view.UAVClass;
+import com.dji.sample.flightauthorization.ussp.dto.common.TypeOfFlight;
+import com.dji.sample.flightauthorization.ussp.dto.common.UASCategory;
+import com.dji.sample.flightauthorization.ussp.dto.common.UASIdentificationTechnology;
+import com.dji.sample.flightauthorization.ussp.dto.common.UAVClass;
 import com.dji.sample.manage.model.dto.DeviceDTO;
 import com.dji.sample.manage.model.param.DeviceQueryParam;
 import com.dji.sample.manage.service.IDeviceService;
@@ -54,13 +58,13 @@ public class FlightOperationApplicationService {
 		this.configurationProperties = configurationProperties;
 	}
 
-	public FlightAuthorizationRequestView submitRequest(String workspaceId, String username,
-		CreateFlightOperationRequestDTO command) throws SubmissionFailedException {
+	public FlightOperationDetailDTO submitRequest(String workspaceId, String username,
+		CreateFlightOperationRequestDTO requestDto) throws SubmissionFailedException {
 		try {
-			Wayline wayline = waylineService.getWayline(workspaceId, command.getWaylineId());
+			Wayline wayline = waylineService.getWayline(workspaceId, requestDto.getWaylineId());
 
 			ResponseEntity<String> submissionResponse = usspFlightAuthorizationRepository.submitRequest(
-				convertDataToSubmissionCommand(command, wayline));
+				convertDataToSubmissionDTO(requestDto, wayline));
 
 			if (submissionResponse.getStatusCode() != HttpStatus.OK) {
 				throw new SubmissionFailedException(submissionResponse.getStatusCode(),
@@ -71,17 +75,17 @@ public class FlightOperationApplicationService {
 				new FlightOperation(
 					Name.of(username),
 					WorkspaceId.of(workspaceId),
-					WaylineFileId.of(command.getWaylineId()),
-					command.getTitle(),
-					command.getDescription(),
-					command.getTakeoffTime(),
-					command.getLandingTime(),
-					command.getModeOfOperation(),
+					WaylineFileId.of(requestDto.getWaylineId()),
+					requestDto.getTitle(),
+					requestDto.getDescription(),
+					requestDto.getTakeoffTime(),
+					requestDto.getLandingTime(),
+					requestDto.getModeOfOperation(),
 					USSPFlightOperationId.of(submissionResponse.getBody())
 				));
 
 			//TODO: either keep fetching or wait 5 seconds to pull status
-			FlightAuthorizationRequestView flightRequestSubmission = usspFlightAuthorizationRepository
+			FlightOperationDetailDTO flightRequestSubmission = usspFlightAuthorizationRepository
 				.findByFlightOperationId(submissionResponse.getBody()).getBody();
 
 			flightOperation.setAuthorisationStatus(
@@ -103,7 +107,7 @@ public class FlightOperationApplicationService {
 			.collect(Collectors.toList());
 	}
 
-	public ResponseEntity<FlightAuthorizationRequestView> getRequest(Long id) {
+	public ResponseEntity<FlightOperationDetailDTO> getRequest(Long id) {
 		FlightOperation authorization = flightOperationService.get(id);
 		return usspFlightAuthorizationRepository.findByFlightOperationId(
 			authorization.getUsspFlightOperationId().toString());
@@ -115,34 +119,28 @@ public class FlightOperationApplicationService {
 			authorization.getUsspFlightOperationId().toString());
 	}
 
-	private SubmitFlightAuthorizationRequestCommand convertDataToSubmissionCommand(
-		CreateFlightOperationRequestDTO command, Wayline wayline) {
+	private SubmitFlightAuthorizationRequestDTO convertDataToSubmissionDTO(
+		CreateFlightOperationRequestDTO createFlightOperationRequestDTO, Wayline wayline) {
 
-		OperationalVolumeCommand operationalVolumeCommand = OperationalVolumeCommand.builder()
-			.area(wayline.getOperationalVolume().getArea())
-			.minHeightInMeter(wayline.getOperationalVolume().getMinHeightInMeter())
-			.maxHeightInMeter(wayline.getOperationalVolume().getMaxHeightInMeter())
-			.build();
-
-		return SubmitFlightAuthorizationRequestCommand
+		return SubmitFlightAuthorizationRequestDTO
 			.builder()
-			.uasOperatorRegistrationNumber(command.getUasOperatorRegistrationNumber())
-			.title(command.getTitle().toString())
-			.description(command.getDescription().toString())
-			.takeOffTime(command.getTakeoffTime())
-			.landingTime(command.getLandingTime())
-			.operationalVolume(operationalVolumeCommand)
-			.modeOfOperation(command.getModeOfOperation())
+			.uasOperatorRegistrationNumber(createFlightOperationRequestDTO.getUasOperatorRegistrationNumber())
+			.title(createFlightOperationRequestDTO.getTitle().toString())
+			.description(createFlightOperationRequestDTO.getDescription().toString())
+			.takeOffTime(createFlightOperationRequestDTO.getTakeoffTime())
+			.landingTime(createFlightOperationRequestDTO.getLandingTime())
+			.operationalVolume(calculateOperationalVolume(wayline))
+			.modeOfOperation(createFlightOperationRequestDTO.getModeOfOperation())
 			.typeOfFlight(TypeOfFlight.STANDARD)
-			.unmannedAircrafts(getUnmannedAircraftCommands(command.getUasSerialNumber()))
+			.unmannedAircrafts(getUnmannedAircraftCommands(createFlightOperationRequestDTO.getUasSerialNumber()))
 			.correlationId(null)
 			.safetyLandingPoints(null)
 			.flightPath(wayline.getFlightPath())
 			.build();
 	}
 
-	private List<UnmannedAircraftCommand> getUnmannedAircraftCommands(String serialNumber) {
-		if(configurationProperties.isMockDevices()){
+	private List<UnmannedAircraft> getUnmannedAircraftCommands(String serialNumber) {
+		if (configurationProperties.isMockDevices()) {
 			return List.of(
 				convertDeviceToCommand(DeviceDTO.builder()
 					.registrationNumber("DJI.TEST-123")
@@ -158,8 +156,8 @@ public class FlightOperationApplicationService {
 			.collect(Collectors.toList());
 	}
 
-	private UnmannedAircraftCommand convertDeviceToCommand(DeviceDTO device) {
-		return UnmannedAircraftCommand.builder()
+	private UnmannedAircraft convertDeviceToCommand(DeviceDTO device) {
+		return UnmannedAircraft.builder()
 			.registrationNumber(device.getRegistrationNumber())
 			.applicableEmergencyForConnectivityLoss("ELP")
 			.category(UASCategory.SPECIFIC)
@@ -167,6 +165,23 @@ public class FlightOperationApplicationService {
 			.serialnumber(device.getDeviceSn())
 			.uavClass(UAVClass.C2)
 			.enduranceInMinutes(100)
+			.build();
+	}
+
+	private OperationalVolume calculateOperationalVolume(Wayline wayline) {
+		LineString flightPath = wayline.getFlightPath();
+
+		// https://docs.geotools.org/latest/userguide/library/jts/operation.html
+		Polygon flightArea = (Polygon) flightPath.buffer(10);
+
+		List<Coordinate> flightPathCoordinates = Arrays.asList(flightPath.getCoordinates());
+		double minHeight = flightPathCoordinates.stream().map(Coordinate::getZ).min(Double::compare).get();
+		double maxHeight = flightPathCoordinates.stream().map(Coordinate::getZ).max(Double::compare).get();
+
+		return OperationalVolume.builder()
+			.area(flightArea)
+			.minHeightInMeter(minHeight)
+			.maxHeightInMeter(maxHeight)
 			.build();
 	}
 }

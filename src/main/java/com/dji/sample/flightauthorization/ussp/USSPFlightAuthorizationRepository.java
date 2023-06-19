@@ -3,8 +3,8 @@ package com.dji.sample.flightauthorization.ussp;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import com.dji.sample.flightauthorization.ussp.command.SubmitFlightAuthorizationRequestCommand;
-import com.dji.sample.flightauthorization.ussp.view.FlightAuthorizationRequestView;
+import com.dji.sample.flightauthorization.ussp.dto.request.SubmitFlightAuthorizationRequestDTO;
+import com.dji.sample.flightauthorization.ussp.dto.response.FlightOperationDetailDTO;
 
 public class USSPFlightAuthorizationRepository {
 
@@ -16,16 +16,16 @@ public class USSPFlightAuthorizationRepository {
 		this.restTemplate = restTemplate;
 	}
 
-	public ResponseEntity<FlightAuthorizationRequestView> findByFlightOperationId(String flightOperationId) {
+	public ResponseEntity<FlightOperationDetailDTO> findByFlightOperationId(String flightOperationId) {
 		return restTemplate.getForEntity(
 			baseUrl + "/authorisation-requests/" + flightOperationId,
-			FlightAuthorizationRequestView.class);
+			FlightOperationDetailDTO.class);
 	}
 
-	public ResponseEntity<String> submitRequest(SubmitFlightAuthorizationRequestCommand command) {
+	public ResponseEntity<String> submitRequest(SubmitFlightAuthorizationRequestDTO requestDto) {
 		return restTemplate.postForEntity(
 			baseUrl + "/authorisation-requests",
-			command,
+			requestDto,
 			String.class);
 	}
 
