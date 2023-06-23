@@ -59,13 +59,13 @@ public class FlightOperationRequestController {
 	@PostMapping("{workspace_id}/create")
 	public ResponseEntity createRequest(
 		@PathVariable("workspace_id") String workspaceId,
-		@RequestBody @Valid CreateFlightOperationRequestDTO command,
+		@RequestBody @Valid CreateFlightOperationRequestDTO requestDto,
 		HttpServletRequest request) {
 		guard.createRequest(workspaceId, request);
 		CustomClaim customClaim = (CustomClaim) request.getAttribute(TOKEN_CLAIM);
 		try {
 			return ResponseEntity
-				.ok(applicationService.submitRequest(workspaceId, customClaim.getUsername(), command));
+				.ok(applicationService.submitRequest(workspaceId, customClaim.getUsername(), requestDto));
 		} catch (SubmissionFailedException e) {
 			return ResponseEntity
 				.status(e.getStatus())
@@ -74,11 +74,11 @@ public class FlightOperationRequestController {
 	}
 
 	@PutMapping("{workspace_id}/{id}/cancel")
-	public void cancelRequest(
+	public ResponseEntity cancelRequest(
 		@PathVariable("workspace_id") String workspaceId,
 		@PathVariable("id") Long id,
 		HttpServletRequest request) {
 		guard.cancelRequest(workspaceId, id, request);
-		applicationService.cancelRequest(id);
+		return applicationService.cancelRequest(id);
 	}
 }

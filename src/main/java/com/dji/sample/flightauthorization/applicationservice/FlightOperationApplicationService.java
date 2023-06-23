@@ -22,14 +22,14 @@ import com.dji.sample.flightauthorization.domain.value.WaylineFileId;
 import com.dji.sample.flightauthorization.domain.value.WorkspaceId;
 import com.dji.sample.flightauthorization.ussp.USSPFlightAuthorizationRepository;
 import com.dji.sample.flightauthorization.ussp.dto.common.OperationalVolume;
-import com.dji.sample.flightauthorization.ussp.dto.common.UnmannedAircraft;
-import com.dji.sample.flightauthorization.ussp.dto.request.SubmitFlightAuthorizationRequestDTO;
-import com.dji.sample.flightauthorization.ussp.dto.response.FlightOperationDetailDTO;
-import com.dji.sample.flightauthorization.ussp.exception.SubmissionFailedException;
 import com.dji.sample.flightauthorization.ussp.dto.common.TypeOfFlight;
 import com.dji.sample.flightauthorization.ussp.dto.common.UASCategory;
 import com.dji.sample.flightauthorization.ussp.dto.common.UASIdentificationTechnology;
 import com.dji.sample.flightauthorization.ussp.dto.common.UAVClass;
+import com.dji.sample.flightauthorization.ussp.dto.common.UnmannedAircraft;
+import com.dji.sample.flightauthorization.ussp.dto.request.SubmitFlightAuthorizationRequestDTO;
+import com.dji.sample.flightauthorization.ussp.dto.response.FlightOperationDetailDTO;
+import com.dji.sample.flightauthorization.ussp.exception.SubmissionFailedException;
 import com.dji.sample.manage.model.dto.DeviceDTO;
 import com.dji.sample.manage.model.param.DeviceQueryParam;
 import com.dji.sample.manage.service.IDeviceService;
@@ -117,9 +117,9 @@ public class FlightOperationApplicationService {
 			authorization.getUsspFlightOperationId().toString());
 	}
 
-	public void cancelRequest(Long id) {
+	public ResponseEntity cancelRequest(Long id) {
 		FlightOperation authorization = flightOperationService.get(id);
-		usspFlightAuthorizationRepository.cancelByFlightOperationId(
+		return usspFlightAuthorizationRepository.cancelByFlightOperationId(
 			authorization.getUsspFlightOperationId().toString());
 	}
 
@@ -189,7 +189,7 @@ public class FlightOperationApplicationService {
 			.build();
 	}
 
-	private org.geojson.LineString createLineStringGeoJSON(LineString lineString){
+	private org.geojson.LineString createLineStringGeoJSON(LineString lineString) {
 		LngLatAlt[] lngLatAlts = parseCoordinates(lineString.getCoordinates());
 		return new org.geojson.LineString(lngLatAlts);
 	}
