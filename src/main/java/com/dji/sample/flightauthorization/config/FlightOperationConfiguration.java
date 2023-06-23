@@ -53,8 +53,7 @@ public class FlightOperationConfiguration {
 
 	@Bean
 	public USSPFlightAuthorizationRepository usspFlightAuthorizationRepository() {
-		return new USSPFlightAuthorizationRepository(flightOperationConfigurationProperties.getUrl(),
-			flightOperationConfigurationProperties);
+		return new USSPFlightAuthorizationRepository(flightOperationConfigurationProperties);
 	}
 
 	@Bean

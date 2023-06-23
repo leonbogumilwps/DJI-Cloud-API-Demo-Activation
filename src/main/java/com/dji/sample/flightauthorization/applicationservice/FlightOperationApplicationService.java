@@ -133,7 +133,7 @@ public class FlightOperationApplicationService {
 			.description(createFlightOperationRequestDTO.getDescription().toString())
 			.takeOffTime(createFlightOperationRequestDTO.getTakeoffTime())
 			.landingTime(createFlightOperationRequestDTO.getLandingTime())
-			.typeOfFlight(TypeOfFlight.STANDARD)
+			.typeOfFlight(TypeOfFlight.SPECIAL_OPERATIONS)
 			.flightMode(createFlightOperationRequestDTO.getModeOfOperation())
 			.operator(this.getOperatorDto())
 			.waypoints(this.calculateWaypoints(wayline))

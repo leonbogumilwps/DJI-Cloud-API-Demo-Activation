@@ -25,9 +25,8 @@ public class USSPFlightAuthorizationRepository {
 
 	private HttpHeaders headers;
 
-	public USSPFlightAuthorizationRepository(String usspBaseUrl,
-		FlightOperationConfigurationProperties configurationProperties) {
-		this.baseUrl = usspBaseUrl;
+	public USSPFlightAuthorizationRepository(FlightOperationConfigurationProperties configurationProperties) {
+		this.baseUrl = configurationProperties.getUrl();
 		this.initRestTemplate(configurationProperties);
 	}
 
