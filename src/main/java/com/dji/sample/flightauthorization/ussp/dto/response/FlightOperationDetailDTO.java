@@ -7,7 +7,7 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.MultiPoint;
 
 import com.dji.sample.flightauthorization.domain.value.ModeOfOperation;
-import com.dji.sample.flightauthorization.ussp.dto.common.OperationalVolume;
+import com.dji.sample.flightauthorization.ussp.dto.common.GeofenceDto;
 import com.dji.sample.flightauthorization.ussp.dto.common.TypeOfFlight;
 import com.dji.sample.flightauthorization.ussp.dto.common.UnmannedAircraft;
 
@@ -27,7 +27,7 @@ public class FlightOperationDetailDTO {
 	private String description;
 	private Instant takeOffTime;
 	private Instant landingTime;
-	private OperationalVolume operationalVolume;
+	private GeofenceDto geofence;
 	private ModeOfOperation modeOfOperation;
 	private TypeOfFlight typeOfFlight;
 	private List<UnmannedAircraft> unmannedAircrafts;

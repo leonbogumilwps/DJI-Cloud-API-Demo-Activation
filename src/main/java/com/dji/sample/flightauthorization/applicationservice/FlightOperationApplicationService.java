@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.geojson.LngLatAlt;
+import org.geojson.Point;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
@@ -21,13 +22,16 @@ import com.dji.sample.flightauthorization.domain.value.USSPFlightOperationId;
 import com.dji.sample.flightauthorization.domain.value.WaylineFileId;
 import com.dji.sample.flightauthorization.domain.value.WorkspaceId;
 import com.dji.sample.flightauthorization.ussp.USSPFlightAuthorizationRepository;
-import com.dji.sample.flightauthorization.ussp.dto.common.OperationalVolume;
+import com.dji.sample.flightauthorization.ussp.dto.common.GeofenceDto;
 import com.dji.sample.flightauthorization.ussp.dto.common.TypeOfFlight;
 import com.dji.sample.flightauthorization.ussp.dto.common.UASCategory;
 import com.dji.sample.flightauthorization.ussp.dto.common.UASIdentificationTechnology;
 import com.dji.sample.flightauthorization.ussp.dto.common.UAVClass;
-import com.dji.sample.flightauthorization.ussp.dto.common.UnmannedAircraft;
+import com.dji.sample.flightauthorization.ussp.dto.request.SafetyLandingPointDTO;
 import com.dji.sample.flightauthorization.ussp.dto.request.SubmitFlightAuthorizationRequestDTO;
+import com.dji.sample.flightauthorization.ussp.dto.request.UASOperatorDTO;
+import com.dji.sample.flightauthorization.ussp.dto.request.UAVDTO;
+import com.dji.sample.flightauthorization.ussp.dto.request.WaypointDTO;
 import com.dji.sample.flightauthorization.ussp.dto.response.FlightOperationDetailDTO;
 import com.dji.sample.flightauthorization.ussp.exception.SubmissionFailedException;
 import com.dji.sample.manage.model.dto.DeviceDTO;
@@ -128,28 +132,36 @@ public class FlightOperationApplicationService {
 
 		return SubmitFlightAuthorizationRequestDTO
 			.builder()
-			.uasOperatorRegistrationNumber(createFlightOperationRequestDTO.getUasOperatorRegistrationNumber())
+			.correlationId(null)
 			.title(createFlightOperationRequestDTO.getTitle().toString())
 			.description(createFlightOperationRequestDTO.getDescription().toString())
 			.takeOffTime(createFlightOperationRequestDTO.getTakeoffTime())
 			.landingTime(createFlightOperationRequestDTO.getLandingTime())
-			.operationalVolume(calculateOperationalVolume(wayline))
-			.modeOfOperation(createFlightOperationRequestDTO.getModeOfOperation())
 			.typeOfFlight(TypeOfFlight.STANDARD)
-			.unmannedAircrafts(getUnmannedAircraftCommands(createFlightOperationRequestDTO.getUasSerialNumber()))
-			.correlationId(null)
-			.safetyLandingPoints(null)
-			.flightPath(createLineStringGeoJSON(wayline.getFlightPath()))
+			.flightMode(createFlightOperationRequestDTO.getModeOfOperation())
+			.operator(this.getOperatorDto())
+			.waypoints(this.calculateWaypoints(wayline))
+			.safetyLandingPoints(this.calculateSafetyLandingPoints(wayline))
+			.geofence(this.calculateGeofence(wayline))
+			.uav(this.getUAVDto(createFlightOperationRequestDTO.getUasSerialNumber()))
 			.build();
 	}
 
-	private List<UnmannedAircraft> getUnmannedAircraftCommands(String serialNumber) {
+	private UASOperatorDTO getOperatorDto() {
+		return UASOperatorDTO.builder()
+			.operatorID("DE.HH-USSP-0000")
+			.contactURL("https://test.dji-cloud.wps.de/localhost-nicht-hier/")
+			.build();
+	}
+
+	//"2336-55123-X123"
+	private UAVDTO getUAVDto(String serialNumber) {
 		if (configurationProperties.isMockDevices()) {
-			return List.of(
+			return
 				convertDeviceToCommand(DeviceDTO.builder()
-					.registrationNumber("DJI.TEST-123")
-					.deviceSn("321-456-n67-1-2")
-					.build()));
+					.registrationNumber("DE.WPS-TEST-1234")
+					.deviceSn(serialNumber)
+					.build());
 		}
 		return deviceService.getDevicesByParams(
 				DeviceQueryParam.builder()
@@ -157,22 +169,49 @@ public class FlightOperationApplicationService {
 					.build())
 			.stream()
 			.map(this::convertDeviceToCommand)
-			.collect(Collectors.toList());
+			.collect(Collectors.toList()).get(0);
 	}
 
-	private UnmannedAircraft convertDeviceToCommand(DeviceDTO device) {
-		return UnmannedAircraft.builder()
-			.registrationNumber(device.getRegistrationNumber())
-			.applicableEmergencyForConnectivityLoss("ELP")
-			.category(UASCategory.SPECIFIC)
-			.identificationTechnology(UASIdentificationTechnology.WIFI)
+	private UAVDTO convertDeviceToCommand(DeviceDTO device) {
+		return UAVDTO.builder()
 			.serialnumber(device.getDeviceSn())
+			.registrationId(device.getRegistrationNumber())
+			.category(UASCategory.SPECIFIC)
 			.uavClass(UAVClass.C2)
-			.enduranceInMinutes(100)
+			.identificationTechnology(UASIdentificationTechnology.WIFI)
+			.expectedConnectivityMethod(true)
+			.endurance(300)
+			.applicableEmergencyForConnectivityLoss("ELP")
 			.build();
 	}
 
-	private OperationalVolume calculateOperationalVolume(Wayline wayline) {
+	private List<WaypointDTO> calculateWaypoints(Wayline wayline) {
+		LineString flightPath = wayline.getFlightPath();
+		return Arrays.stream(flightPath.getCoordinates())
+			.map(this::convertCoordinateToWaypoint)
+			.collect(Collectors.toList());
+	}
+
+	private WaypointDTO convertCoordinateToWaypoint(Coordinate coordinate) {
+		return WaypointDTO.builder()
+			.position(new Point(coordinate.x, coordinate.y))
+			.altitudeInMeters(coordinate.z)
+			.cruisingSpeed(5.0)
+			.build();
+	}
+
+	private List<SafetyLandingPointDTO> calculateSafetyLandingPoints(Wayline wayline) {
+		LineString flightPath = wayline.getFlightPath();
+		Coordinate firstCoordinate = flightPath.getCoordinates()[0];
+		return List.of(
+			SafetyLandingPointDTO.builder()
+				.position(new Point(firstCoordinate.x, firstCoordinate.y))
+				.radiusInMeter(1)
+				.build()
+		);
+	}
+
+	private GeofenceDto calculateGeofence(Wayline wayline) {
 		LineString flightPath = wayline.getFlightPath();
 
 		// https://docs.geotools.org/latest/userguide/library/jts/operation.html
@@ -182,16 +221,11 @@ public class FlightOperationApplicationService {
 		double minHeight = flightPathCoordinates.stream().map(Coordinate::getZ).min(Double::compare).get();
 		double maxHeight = flightPathCoordinates.stream().map(Coordinate::getZ).max(Double::compare).get();
 
-		return OperationalVolume.builder()
+		return GeofenceDto.builder()
 			.area(createPolygonGeoJSON(flightArea))
 			.minHeightInMeter(minHeight)
 			.maxHeightInMeter(maxHeight)
 			.build();
-	}
-
-	private org.geojson.LineString createLineStringGeoJSON(LineString lineString) {
-		LngLatAlt[] lngLatAlts = parseCoordinates(lineString.getCoordinates());
-		return new org.geojson.LineString(lngLatAlts);
 	}
 
 	private org.geojson.Polygon createPolygonGeoJSON(Polygon polygon) {

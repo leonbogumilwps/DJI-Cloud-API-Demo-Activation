@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class OperationalVolume {
+public class GeofenceDto {
 	private Polygon area;
 	private double minHeightInMeter;
 	private double maxHeightInMeter;
