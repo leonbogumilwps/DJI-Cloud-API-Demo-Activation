@@ -53,9 +53,8 @@ public class FlightOperationConfiguration {
 
 	@Bean
 	public USSPFlightAuthorizationRepository usspFlightAuthorizationRepository() {
-		RestTemplate restTemplate = new RestTemplate();
-		//TODO: add authentication to ussp restTemplate, check for httpmessageconverters
-		return new USSPFlightAuthorizationRepository(flightOperationConfigurationProperties.getUrl(), restTemplate);
+		return new USSPFlightAuthorizationRepository(flightOperationConfigurationProperties.getUrl(),
+			flightOperationConfigurationProperties);
 	}
 
 	@Bean
