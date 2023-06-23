@@ -20,8 +20,7 @@ import com.dji.sample.flightauthorization.domain.value.Name;
 import com.dji.sample.flightauthorization.domain.value.WaylineFileId;
 import com.dji.sample.flightauthorization.domain.value.WorkspaceId;
 import com.dji.sample.flightauthorization.domain.value.ActivationStatus;
-import com.dji.sample.flightauthorization.domain.value.AuthorisationStatus;
-import com.dji.sample.flightauthorization.domain.value.usertype.DescriptionUserType;
+import com.dji.sample.flightauthorization.domain.value.ApprovalRequestStatus;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -72,7 +71,7 @@ public class FlightOperation {
 
 	@Enumerated(EnumType.STRING)
 	@Setter
-	private AuthorisationStatus authorisationStatus;
+	private ApprovalRequestStatus approvalRequestStatus;
 
 	public FlightOperation(
 		Name username,
@@ -93,6 +92,6 @@ public class FlightOperation {
 		this.modeOfOperation = modeOfOperation;
 		this.usspFlightOperationId = usspFlightOperationId;
 		this.activationStatus = ActivationStatus.NOT_ACTIVATED;
-		this.authorisationStatus = AuthorisationStatus.RECEIVED;
+		this.approvalRequestStatus = ApprovalRequestStatus.RECEIVED;
 	}
 }

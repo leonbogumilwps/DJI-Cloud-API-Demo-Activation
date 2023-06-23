@@ -29,8 +29,8 @@ import com.dji.sample.flightauthorization.ussp.dto.common.UASIdentificationTechn
 import com.dji.sample.flightauthorization.ussp.dto.common.UAVClass;
 import com.dji.sample.flightauthorization.ussp.dto.request.SafetyLandingPointDTO;
 import com.dji.sample.flightauthorization.ussp.dto.request.SubmitFlightAuthorizationRequestDTO;
-import com.dji.sample.flightauthorization.ussp.dto.request.UASOperatorDTO;
-import com.dji.sample.flightauthorization.ussp.dto.request.UAVDTO;
+import com.dji.sample.flightauthorization.ussp.dto.common.UASOperatorDTO;
+import com.dji.sample.flightauthorization.ussp.dto.common.UAVDTO;
 import com.dji.sample.flightauthorization.ussp.dto.request.WaypointDTO;
 import com.dji.sample.flightauthorization.ussp.dto.response.FlightOperationDetailDTO;
 import com.dji.sample.flightauthorization.ussp.exception.SubmissionFailedException;
@@ -96,10 +96,8 @@ public class FlightOperationApplicationService {
 			FlightOperationDetailDTO flightRequestSubmission = usspFlightAuthorizationRepository
 				.findByFlightOperationId(submissionResponse.getBody()).getBody();
 
-			flightOperation.setAuthorisationStatus(
-				flightRequestSubmission.getStatus().getAuthorisationStatus());
-			flightOperation.setActivationStatus(
-				flightRequestSubmission.getActivationStatus().getActivationStatus());
+			flightOperation.setApprovalRequestStatus(
+				flightRequestSubmission.getStatus());
 			flightOperationService.save(flightOperation);
 
 			return flightRequestSubmission;

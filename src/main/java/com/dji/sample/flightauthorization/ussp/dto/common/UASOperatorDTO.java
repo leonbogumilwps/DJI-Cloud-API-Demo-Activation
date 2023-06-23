@@ -1,4 +1,4 @@
-package com.dji.sample.flightauthorization.ussp.dto.request;
+package com.dji.sample.flightauthorization.ussp.dto.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

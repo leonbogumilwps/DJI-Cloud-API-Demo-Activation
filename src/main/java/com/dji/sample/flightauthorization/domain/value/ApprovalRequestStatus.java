@@ -1,9 +1,8 @@
 package com.dji.sample.flightauthorization.domain.value;
 
-public enum AuthorisationStatus {
+public enum ApprovalRequestStatus {
 	RECEIVED,
+	STARTED,
 	REJECTED,
-	APPROVED,
-	CANCELLED,
-	WITHDRAWN
+	APPROVED
 }

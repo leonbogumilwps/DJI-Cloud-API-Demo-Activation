@@ -6,6 +6,8 @@ import java.util.List;
 import com.dji.sample.flightauthorization.domain.value.ModeOfOperation;
 import com.dji.sample.flightauthorization.ussp.dto.common.GeofenceDto;
 import com.dji.sample.flightauthorization.ussp.dto.common.TypeOfFlight;
+import com.dji.sample.flightauthorization.ussp.dto.common.UASOperatorDTO;
+import com.dji.sample.flightauthorization.ussp.dto.common.UAVDTO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AllArgsConstructor;
