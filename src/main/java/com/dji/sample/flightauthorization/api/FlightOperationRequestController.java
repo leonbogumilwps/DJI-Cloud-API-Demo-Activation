@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -73,12 +72,4 @@ public class FlightOperationRequestController {
 		}
 	}
 
-	@PutMapping("{workspace_id}/{id}/cancel")
-	public ResponseEntity cancelRequest(
-		@PathVariable("workspace_id") String workspaceId,
-		@PathVariable("id") Long id,
-		HttpServletRequest request) {
-		guard.cancelRequest(workspaceId, id, request);
-		return applicationService.cancelRequest(id);
-	}
 }

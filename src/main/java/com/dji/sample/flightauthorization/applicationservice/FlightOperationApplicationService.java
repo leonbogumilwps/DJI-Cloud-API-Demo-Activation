@@ -26,13 +26,12 @@ import com.dji.sample.flightauthorization.ussp.dto.common.GeofenceDto;
 import com.dji.sample.flightauthorization.ussp.dto.common.TypeOfFlight;
 import com.dji.sample.flightauthorization.ussp.dto.common.UASCategory;
 import com.dji.sample.flightauthorization.ussp.dto.common.UASIdentificationTechnology;
+import com.dji.sample.flightauthorization.ussp.dto.common.UASOperatorDTO;
 import com.dji.sample.flightauthorization.ussp.dto.common.UAVClass;
+import com.dji.sample.flightauthorization.ussp.dto.common.UAVDTO;
 import com.dji.sample.flightauthorization.ussp.dto.request.SafetyLandingPointDTO;
 import com.dji.sample.flightauthorization.ussp.dto.request.SubmitFlightAuthorizationRequestDTO;
-import com.dji.sample.flightauthorization.ussp.dto.common.UASOperatorDTO;
-import com.dji.sample.flightauthorization.ussp.dto.common.UAVDTO;
 import com.dji.sample.flightauthorization.ussp.dto.request.WaypointDTO;
-import com.dji.sample.flightauthorization.ussp.dto.response.ApprovalStatusUASDTO;
 import com.dji.sample.flightauthorization.ussp.dto.response.FlightOperationDetailDTO;
 import com.dji.sample.flightauthorization.ussp.exception.SubmissionFailedException;
 import com.dji.sample.manage.model.dto.DeviceDTO;
@@ -121,12 +120,6 @@ public class FlightOperationApplicationService {
 	public ResponseEntity<FlightOperationDetailDTO> getRequest(Long id) {
 		FlightOperation authorization = flightOperationService.get(id);
 		return usspFlightAuthorizationRepository.findByFlightOperationId(
-			authorization.getUsspFlightOperationId().toString());
-	}
-
-	public ResponseEntity cancelRequest(Long id) {
-		FlightOperation authorization = flightOperationService.get(id);
-		return usspFlightAuthorizationRepository.cancelByFlightOperationId(
 			authorization.getUsspFlightOperationId().toString());
 	}
 

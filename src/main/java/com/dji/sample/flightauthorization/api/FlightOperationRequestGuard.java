@@ -20,10 +20,6 @@ public class FlightOperationRequestGuard {
 		checkUserHasPermissionsForWorkspace(workspaceId, request);
 	}
 
-	public void cancelRequest(String workspaceId, Long id, HttpServletRequest request) {
-		checkUserHasPermissionsForWorkspace(workspaceId, request);
-	}
-
 	private void checkUserHasPermissionsForWorkspace(String workspaceId, HttpServletRequest request) {
 		CustomClaim customClaim = (CustomClaim) request.getAttribute(TOKEN_CLAIM);
 		if (!workspaceId.equals(customClaim.getWorkspaceId())) {

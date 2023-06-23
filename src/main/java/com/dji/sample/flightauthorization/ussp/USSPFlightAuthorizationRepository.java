@@ -2,9 +2,7 @@ package com.dji.sample.flightauthorization.ussp;
 
 import java.io.IOException;
 
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -77,11 +75,4 @@ public class USSPFlightAuthorizationRepository {
 			String.class);
 	}
 
-	public ResponseEntity cancelByFlightOperationId(String flightOperationId) {
-		return restTemplate.exchange(
-			baseUrl + "/authorisation-requests/" + flightOperationId + "/cancellations",
-			HttpMethod.PUT,
-			null,
-			Void.class);
-	}
 }
