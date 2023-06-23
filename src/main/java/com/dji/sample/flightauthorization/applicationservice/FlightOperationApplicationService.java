@@ -32,6 +32,7 @@ import com.dji.sample.flightauthorization.ussp.dto.request.SubmitFlightAuthoriza
 import com.dji.sample.flightauthorization.ussp.dto.common.UASOperatorDTO;
 import com.dji.sample.flightauthorization.ussp.dto.common.UAVDTO;
 import com.dji.sample.flightauthorization.ussp.dto.request.WaypointDTO;
+import com.dji.sample.flightauthorization.ussp.dto.response.ApprovalStatusUASDTO;
 import com.dji.sample.flightauthorization.ussp.dto.response.FlightOperationDetailDTO;
 import com.dji.sample.flightauthorization.ussp.exception.SubmissionFailedException;
 import com.dji.sample.manage.model.dto.DeviceDTO;
@@ -95,6 +96,10 @@ public class FlightOperationApplicationService {
 			//TODO: either keep fetching or wait 5 seconds to pull status
 			FlightOperationDetailDTO flightRequestSubmission = usspFlightAuthorizationRepository
 				.findByFlightOperationId(submissionResponse.getBody()).getBody();
+
+			// Status: ACCEPTED, REJECTED, PENDING
+			// ApprovalStatusUASDTO status = usspFlightAuthorizationRepository.findStatusByFlightOperationId(
+			// submissionResponse.getBody()).getBody();
 
 			flightOperation.setApprovalRequestStatus(
 				flightRequestSubmission.getStatus());

@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import com.dji.sample.flightauthorization.config.FlightOperationConfigurationProperties;
 import com.dji.sample.flightauthorization.ussp.dto.request.LoginDTO;
 import com.dji.sample.flightauthorization.ussp.dto.request.SubmitFlightAuthorizationRequestDTO;
+import com.dji.sample.flightauthorization.ussp.dto.response.ApprovalStatusUASDTO;
 import com.dji.sample.flightauthorization.ussp.dto.response.AuthenticationInfoDTO;
 import com.dji.sample.flightauthorization.ussp.dto.response.FlightOperationDetailDTO;
 
@@ -26,7 +27,8 @@ public class USSPFlightAuthorizationRepository {
 
 	private HttpHeaders headers;
 
-	public USSPFlightAuthorizationRepository(String usspBaseUrl, FlightOperationConfigurationProperties configurationProperties) {
+	public USSPFlightAuthorizationRepository(String usspBaseUrl,
+		FlightOperationConfigurationProperties configurationProperties) {
 		this.baseUrl = usspBaseUrl;
 		this.initRestTemplate(configurationProperties);
 	}
@@ -38,9 +40,10 @@ public class USSPFlightAuthorizationRepository {
 		HttpHeaders httpHeaders = new HttpHeaders();
 		httpHeaders.setBearerAuth(authToken);
 		this.headers = httpHeaders;
-		restTemplate.getInterceptors().add(new ClientHttpRequestInterceptor(){
+		restTemplate.getInterceptors().add(new ClientHttpRequestInterceptor() {
 			@Override
-			public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws
+			public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
+				throws
 				IOException {
 				request.getHeaders().setBearerAuth(authToken);
 				return execution.execute(request, body);
@@ -48,7 +51,7 @@ public class USSPFlightAuthorizationRepository {
 		});
 	}
 
-	private String login(FlightOperationConfigurationProperties configurationProperties){
+	private String login(FlightOperationConfigurationProperties configurationProperties) {
 		LoginDTO login = new LoginDTO(configurationProperties.getUsername(), configurationProperties.getPassword());
 		ResponseEntity<AuthenticationInfoDTO> authenticationInfoDTO = restTemplate.postForEntity(
 			baseUrl + "/web/auth/signin", login, AuthenticationInfoDTO.class);
@@ -57,13 +60,19 @@ public class USSPFlightAuthorizationRepository {
 
 	public ResponseEntity<FlightOperationDetailDTO> findByFlightOperationId(String flightOperationId) {
 		return restTemplate.getForEntity(
-			baseUrl + "/authorisation-requests/" + flightOperationId,
+			baseUrl + "/web/flightapprovalrequests/" + flightOperationId,
 			FlightOperationDetailDTO.class);
+	}
+
+	public ResponseEntity<ApprovalStatusUASDTO> findStatusByFlightOperationId(String flightOperationId) {
+		return restTemplate.getForEntity(
+			baseUrl + "/uas/flightapprovalrequest/" + flightOperationId + "/status",
+			ApprovalStatusUASDTO.class);
 	}
 
 	public ResponseEntity<String> submitRequest(SubmitFlightAuthorizationRequestDTO requestDto) {
 		return restTemplate.postForEntity(
-			baseUrl + "/authorisation-requests",
+			baseUrl + "/uas/flightapprovalrequest/submit",
 			requestDto,
 			String.class);
 	}
