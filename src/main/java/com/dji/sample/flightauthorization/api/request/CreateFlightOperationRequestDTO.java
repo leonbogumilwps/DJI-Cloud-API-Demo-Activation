@@ -25,8 +25,6 @@ import lombok.ToString;
 public class CreateFlightOperationRequestDTO {
 
 	@NotNull
-	private String uasOperatorRegistrationNumber;
-	@NotNull
 	private Title title;
 	private Description description;
 	@NotNull
