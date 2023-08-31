@@ -8,7 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
 
 import com.dji.sample.flightauthorization.config.FlightOperationConfigurationProperties;
 import com.dji.sample.flightauthorization.ussp.dto.request.LoginDTO;
@@ -17,6 +19,9 @@ import com.dji.sample.flightauthorization.ussp.dto.response.ApprovalStatusUASDTO
 import com.dji.sample.flightauthorization.ussp.dto.response.AuthenticationInfoDTO;
 import com.dji.sample.flightauthorization.ussp.dto.response.FlightOperationDetailDTO;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class USSPFlightAuthorizationRepository {
 
 	private String baseUrl;
@@ -50,9 +55,16 @@ public class USSPFlightAuthorizationRepository {
 
 	private String login(FlightOperationConfigurationProperties configurationProperties) {
 		LoginDTO login = new LoginDTO(configurationProperties.getUsername(), configurationProperties.getPassword());
-		ResponseEntity<AuthenticationInfoDTO> authenticationInfoDTO = restTemplate.postForEntity(
-			baseUrl + "/web/auth/signin", login, AuthenticationInfoDTO.class);
-		return authenticationInfoDTO.getBody().getJwtAuthToken();
+		try{
+			ResponseEntity<AuthenticationInfoDTO> authenticationInfoDTO = restTemplate.postForEntity(
+				baseUrl + "/web/auth/signin", login, AuthenticationInfoDTO.class);
+
+			return authenticationInfoDTO.getBody().getJwtAuthToken();
+		}
+		catch (RestClientException exception){
+			log.error(exception.toString());
+		}
+		return null;
 	}
 
 	public ResponseEntity<FlightOperationDetailDTO> findByFlightOperationId(String flightOperationId) {
