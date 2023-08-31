@@ -42,3 +42,9 @@ build/
 
 ### minio storage content ###
 /s3/
+
+### Maven
+target
+
+### other
+/src/main/resources/api-v2.json
