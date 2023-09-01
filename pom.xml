@@ -202,6 +202,18 @@
 			<version>1.7</version>
 		</dependency>
 
+		<!-- er, für die nue WebClient-API ab Spring 5. Ersetzt RestTemplate -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+		</dependency>
+
+		<dependency>
+			<!-- Das generierte API enthält swagger-annotations -->
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>1.6.6</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -217,6 +229,49 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+				<version>6.0.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<skip>false</skip>
+							<inputSpec>${project.basedir}/src/main/resources/api-v2.json</inputSpec>
+							<apiPackage>de.hhlasky.uassimulator.api.ussp.sender</apiPackage>
+							<modelPackage>de.hhlasky.uassimulator.api.ussp.dto</modelPackage>
+							<modelNameSuffix>Dto</modelNameSuffix>
+							<invokerPackage>de.hhlasky.uassimulator.api.ussp.sender</invokerPackage>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<generatorName>java</generatorName>
+							<typeMappings>
+								<!-- voll qualifizierter Name, weil Instant auch als API-Parameter-Typ genutzt wird und ImportMappings dort nicht funktionieren -->
+								<typeMapping>OffsetDateTime=java.time.Instant</typeMapping>
+
+								<typeMapping>Point=org.locationtech.jts.geom.Point</typeMapping>
+								<typeMapping>DroneTrackingInformation_pilotPosition=org.locationtech.jts.geom.Point</typeMapping>
+								<typeMapping>AltitudePoint=org.locationtech.jts.geom.Point</typeMapping>
+								<typeMapping>LineString=org.locationtech.jts.geom.LineString</typeMapping>
+								<typeMapping>MultiPoint=org.locationtech.jts.geom.MultiPoint</typeMapping>
+								<typeMapping>SimplePolygon=org.locationtech.jts.geom.Polygon</typeMapping>
+								<typeMapping>Geometry=org.locationtech.jts.geom.Geometry</typeMapping>
+							</typeMappings>
+							<configOptions>
+								<sourceFolder>src/gen/java/main</sourceFolder>
+								<library>webclient</library>
+								<dateLibrary>java8</dateLibrary>
+								<openApiNullable>false</openApiNullable>
+								<useJakartaEe>false</useJakartaEe>
+							</configOptions>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
