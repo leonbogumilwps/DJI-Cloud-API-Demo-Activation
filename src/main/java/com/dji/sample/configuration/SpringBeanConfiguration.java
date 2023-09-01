@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+
+import org.n52.jackson.datatype.jts.JtsModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -17,6 +19,8 @@ import java.time.format.DateTimeFormatter;
 
 @Configuration
 public class SpringBeanConfiguration {
+
+
 
     @Bean
 //    @ConditionalOnMissingBean(ObjectMapper.class)
@@ -45,6 +49,20 @@ public class SpringBeanConfiguration {
                 gen.writeString("");
             }
         });
+
+        // Anpassungen für die Anbindung an den USSP
+        objectMapper.registerModule(jtsModule());
+
         return objectMapper;
+    }
+
+    /**
+     * Bringt Jackson bei, JTS-Geometrien zu De- und Serialisieren (z.B. unsere jts.Polygon).
+     * Dieses Modul sammelt Jackson beim hochfahren ein.
+     */
+    @Bean
+    public JtsModule jtsModule() {
+        JtsModule jtsModule = new JtsModule();
+        return jtsModule;
     }
 }

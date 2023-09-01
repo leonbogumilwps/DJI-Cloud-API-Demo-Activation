@@ -31,6 +31,19 @@ spring:
     multipart:
       max-file-size: 2GB
       max-request-size: 2GB
+  security:
+    oauth2:
+      client:
+        registration:
+          uas-api:
+            client-name: uas-api
+            client-id: uas-api
+            authorization-grant-type: password
+            redirect-uri: "{baseScheme}://{baseHost}{basePort}{basePath}/authorized/{registrationId}"
+            scope: roles, offline_access
+        provider:
+          uas-api:
+            token-uri: ${USSP_TOKEN_URI}
 
 jwt:
   issuer: DJI
@@ -86,6 +99,11 @@ ussp:
   username: ${USSP_USERNAME}
   password: ${USSP_PASSWORD}
   mockDevices: true
+
+apiclient:
+  basepath: ${UTM_BASE_PATH:http://localhost:8080/uas/api/}
+  username: ${USSP_USERNAME}
+  password: ${USSP_PASSWORD}
 
 # Tutorial: https://www.alibabacloud.com/help/en/object-storage-service/latest/use-a-temporary-credential-provided-by-sts-to-access-oss
 #oss:

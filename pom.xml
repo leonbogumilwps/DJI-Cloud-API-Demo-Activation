@@ -37,6 +37,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
@@ -209,10 +214,23 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-client</artifactId>
+		</dependency>
+
+		<dependency>
 			<!-- Das generierte API enthält swagger-annotations -->
 			<groupId>io.swagger</groupId>
 			<artifactId>swagger-annotations</artifactId>
 			<version>1.6.6</version>
+		</dependency>
+
+		<!-- für locationtech.jts bislang einzig funktionierende Lib.
+Siehe https://github.com/bedatadriven/jackson-datatype-jts/issues/26 -->
+		<dependency>
+			<groupId>org.n52.jackson</groupId>
+			<artifactId>jackson-datatype-jts</artifactId>
+			<version>1.2.8</version>
 		</dependency>
 	</dependencies>
 
