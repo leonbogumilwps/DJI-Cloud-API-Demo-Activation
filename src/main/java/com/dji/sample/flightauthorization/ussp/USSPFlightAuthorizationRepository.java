@@ -32,7 +32,7 @@ public class USSPFlightAuthorizationRepository {
 
 	public USSPFlightAuthorizationRepository(FlightOperationConfigurationProperties configurationProperties) {
 		this.baseUrl = configurationProperties.getUrl();
-		this.initRestTemplate(configurationProperties);
+		//this.initRestTemplate(configurationProperties);
 	}
 
 	private void initRestTemplate(FlightOperationConfigurationProperties configurationProperties) {

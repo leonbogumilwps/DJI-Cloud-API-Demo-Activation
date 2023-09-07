@@ -2,9 +2,13 @@ package com.dji.sample.manage.controller;
 
 import com.dji.sample.common.error.CommonErrorEnum;
 import com.dji.sample.common.model.ResponseResult;
+import com.dji.sample.flightauthorization.applicationservice.FlightOperationApplicationService;
 import com.dji.sample.manage.model.dto.UserDTO;
 import com.dji.sample.manage.model.dto.UserLoginDTO;
 import com.dji.sample.manage.service.IUserService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,11 +29,14 @@ public class LoginController {
     @Autowired
     private IUserService userService;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoginController.class);
+
     @PostMapping("/login")
     public ResponseResult login(@RequestBody UserLoginDTO loginDTO) {
 
         String username = loginDTO.getUsername();
         String password = loginDTO.getPassword();
+        LOGGER.debug("Login by user {}", username);
         return userService.userLogin(username, password, loginDTO.getFlag());
     }
 

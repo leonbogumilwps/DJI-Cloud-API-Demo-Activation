@@ -17,7 +17,7 @@ spring:
 
   redis:
     host: localhost
-    port: 6379
+    port: 6380
     database: 0
     username: # if you enable
     password:
@@ -145,7 +145,8 @@ oss:
 
 logging:
   level:
-    com.dji.sample: debug
+    com.dji.sample: DEBUG
+    org.springframework.security: DEBUG
   file:
     name: logs/cloud-api-sample.log
 

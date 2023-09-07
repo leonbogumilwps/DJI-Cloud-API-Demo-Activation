@@ -9,11 +9,16 @@ import org.geojson.Point;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.dji.sample.flightauthorization.api.request.CreateFlightOperationRequestDTO;
 import com.dji.sample.flightauthorization.api.response.FlightOperationListDTO;
+import com.dji.sample.flightauthorization.api.ussp.sender.AuthorizationProxy;
 import com.dji.sample.flightauthorization.config.FlightOperationConfigurationProperties;
 import com.dji.sample.flightauthorization.domain.entity.FlightOperation;
 import com.dji.sample.flightauthorization.domain.service.FlightOperationService;
@@ -41,6 +46,9 @@ import com.dji.sample.wayline.domain.entity.Wayline;
 import com.dji.sample.wayline.domain.exception.WaylineReadException;
 import com.dji.sample.wayline.domain.service.WaylineService;
 
+import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationRequestDto;
+import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationRequestResponseDto;
+
 public class FlightOperationApplicationService {
 
 	private final WaylineService waylineService;
@@ -48,36 +56,37 @@ public class FlightOperationApplicationService {
 	private final USSPFlightAuthorizationRepository usspFlightAuthorizationRepository;
 	private final IDeviceService deviceService;
 
+	private final AuthorizationProxy authorizationProxy;
+
 	private final FlightOperationConfigurationProperties configurationProperties;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(FlightOperationApplicationService.class);
 
 	public FlightOperationApplicationService(
 		WaylineService waylineService,
 		FlightOperationService flightOperationService,
 		USSPFlightAuthorizationRepository usspFlightAuthorizationRepository,
 		IDeviceService deviceService,
-		FlightOperationConfigurationProperties configurationProperties) {
+		AuthorizationProxy authorizationProxy, FlightOperationConfigurationProperties configurationProperties) {
 		this.waylineService = waylineService;
 		this.flightOperationService = flightOperationService;
 		this.usspFlightAuthorizationRepository = usspFlightAuthorizationRepository;
 		this.deviceService = deviceService;
+		this.authorizationProxy = authorizationProxy;
 		this.configurationProperties = configurationProperties;
 	}
 
-	public FlightOperationDetailDTO submitRequest(String workspaceId, String username,
+	public void submitRequest(String workspaceId, String username,
 		CreateFlightOperationRequestDTO requestDto) throws SubmissionFailedException {
 		try {
 			Wayline wayline = waylineService.getWayline(workspaceId, requestDto.getWaylineId());
 
 			SubmitFlightAuthorizationRequestDTO submitFlightAuthorizationRequestDTO = convertDataToSubmissionDTO(
 				requestDto, wayline);
-			ResponseEntity<String> submissionResponse = usspFlightAuthorizationRepository.submitRequest(
-				submitFlightAuthorizationRequestDTO
-			);
-
-			if (submissionResponse.getStatusCode() != HttpStatus.OK) {
-				throw new SubmissionFailedException(submissionResponse.getStatusCode(),
-					"Submission returned StatusCode " + submissionResponse.getStatusCode());
-			}
+			AuthorisationRequestDto request = new AuthorisationRequestDto(); //TODO
+			AuthorisationRequestResponseDto response = authorizationProxy.requestAuthorizationAndWait(request);
+			//ResponseEntity<String> submissionResponse = usspFlightAuthorizationRepository.submitRequest(submitFlightAuthorizationRequestDTO);
+			LOGGER.debug("RequestAuthorization successful");
 
 			FlightOperation flightOperation = flightOperationService.save(
 				new FlightOperation(
@@ -89,24 +98,31 @@ public class FlightOperationApplicationService {
 					requestDto.getTakeoffTime(),
 					requestDto.getLandingTime(),
 					requestDto.getModeOfOperation(),
-					USSPFlightOperationId.of(submissionResponse.getBody())
+					USSPFlightOperationId.of(response.getFlightOperationId())
 				));
 
 			//TODO: either keep fetching or wait 5 seconds to pull status
-			FlightOperationDetailDTO flightRequestSubmission = usspFlightAuthorizationRepository
-				.findByFlightOperationId(submissionResponse.getBody()).getBody();
+			//FlightOperationDetailDTO flightRequestSubmission = usspFlightAuthorizationRepository
+			//	.findByFlightOperationId(submissionResponse.getBody()).getBody();
 
 			// Status: ACCEPTED, REJECTED, PENDING
 			// ApprovalStatusUASDTO status = usspFlightAuthorizationRepository.findStatusByFlightOperationId(
 			// submissionResponse.getBody()).getBody();
 
-			flightOperation.setApprovalRequestStatus(
-				flightRequestSubmission.getStatus());
+			flightOperation.setApprovalRequestStatus(response.getStatus().getAuthorisationStatus());
 			flightOperationService.save(flightOperation);
-
-			return flightRequestSubmission;
 		} catch (WaylineReadException e) {
 			throw new SubmissionFailedException(HttpStatus.BAD_REQUEST, "Failed to read Wayline file.");
+		}
+	 	catch (WebClientResponseException e) {
+			LOGGER.info("Request HTTP Error: " + e.getResponseBodyAsString());
+			throw new SubmissionFailedException(HttpStatus.BAD_REQUEST, "Request HTTP Error");
+		} catch (WebClientRequestException e) {
+			LOGGER.info("Request Server Error: " + e.getMessage());
+			throw new SubmissionFailedException(HttpStatus.BAD_REQUEST, "Request Server Error");
+		} catch (IllegalStateException e) {
+			LOGGER.info("Request IllegalStateException: " + e.getMessage());
+			throw new SubmissionFailedException(HttpStatus.BAD_REQUEST, "Request IllegalStateException");
 		}
 	}
 

@@ -33,7 +33,7 @@ services:
     restart: "always"
     hostname: backend-redis
     ports:
-      - "6379:6379"
+      - "6380:6379"
     command: redis-server
   emqx:
     image: emqx:4.4

@@ -7,6 +7,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +32,8 @@ public class FlightOperationRequestController {
 
 	private final FlightOperationRequestGuard guard;
 	private final FlightOperationApplicationService applicationService;
+	private static final Logger LOGGER = LoggerFactory.getLogger(FlightOperationApplicationService.class);
+
 
 	public FlightOperationRequestController(
 		@NonNull FlightOperationRequestGuard flightOperationRequestGuard,
@@ -52,24 +56,22 @@ public class FlightOperationRequestController {
 		@PathVariable("id") Long id,
 		HttpServletRequest request) {
 		guard.getRequest(workspaceId, id, request);
-		return applicationService.getRequest(id);
+		return null;
+		//return applicationService.getRequest(id);
 	}
 
 	@PostMapping("{workspace_id}/create")
-	public ResponseEntity createRequest(
+	public void createRequest(
 		@PathVariable("workspace_id") String workspaceId,
 		@RequestBody @Valid CreateFlightOperationRequestDTO requestDto,
 		HttpServletRequest request) {
 		guard.createRequest(workspaceId, request);
 		CustomClaim customClaim = (CustomClaim) request.getAttribute(TOKEN_CLAIM);
 		try {
-			return ResponseEntity
-				.ok(applicationService.submitRequest(workspaceId, customClaim.getUsername(), requestDto));
+			LOGGER.debug("SubmitRequest for workspaceId {}: ", workspaceId);
+			applicationService.submitRequest(workspaceId, customClaim.getUsername(), requestDto);
 		} catch (SubmissionFailedException e) {
-			return ResponseEntity
-				.status(e.getStatus())
-				.body(e.getMessage());
+			LOGGER.error("createRequest failed with message: {}", e.getMessage());
 		}
 	}
-
 }

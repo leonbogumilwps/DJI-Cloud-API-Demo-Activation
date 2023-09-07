@@ -6,9 +6,9 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.web.client.RestTemplate;
 
 import com.dji.sample.flightauthorization.api.FlightOperationRequestGuard;
+import com.dji.sample.flightauthorization.api.ussp.sender.AuthorizationProxy;
 import com.dji.sample.flightauthorization.applicationservice.FlightOperationApplicationService;
 import com.dji.sample.flightauthorization.domain.service.FlightOperationService;
 import com.dji.sample.flightauthorization.repository.FlightOperationRepository;
@@ -35,6 +35,9 @@ public class FlightOperationConfiguration {
 	@Autowired
 	private FlightOperationRepository flightOperationRepository;
 
+	@Autowired
+	private AuthorizationProxy authorizationProxy;
+
 	@Bean
 	public FlightOperationRequestGuard flightAuthorizationRequestGuard() {
 		return new FlightOperationRequestGuard();
@@ -48,7 +51,7 @@ public class FlightOperationConfiguration {
 	@Bean
 	public FlightOperationApplicationService flightAuthorizationApplicationService() {
 		return new FlightOperationApplicationService(waylineService(), flightAuthorizationService(),
-			usspFlightAuthorizationRepository(), deviceService, flightOperationConfigurationProperties);
+			usspFlightAuthorizationRepository(), deviceService, authorizationProxy, flightOperationConfigurationProperties);
 	}
 
 	@Bean

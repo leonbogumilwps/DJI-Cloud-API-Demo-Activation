@@ -23,6 +23,7 @@ import com.dji.sample.flightauthorization.domain.value.WorkspaceId;
 import com.dji.sample.flightauthorization.domain.value.ActivationStatus;
 import com.dji.sample.flightauthorization.domain.value.ApprovalRequestStatus;
 
+import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationStatusDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -72,7 +73,7 @@ public class FlightOperation {
 
 	@Enumerated(EnumType.STRING)
 	@Setter
-	private ApprovalRequestStatus approvalRequestStatus;
+	private AuthorisationStatusDto.AuthorisationStatusEnum approvalRequestStatus;
 
 	public FlightOperation(
 		Name username,
@@ -93,6 +94,6 @@ public class FlightOperation {
 		this.modeOfOperation = modeOfOperation;
 		this.usspFlightOperationId = usspFlightOperationId;
 		this.activationStatus = ActivationStatus.NOT_ACTIVATED;
-		this.approvalRequestStatus = ApprovalRequestStatus.RECEIVED;
+		this.approvalRequestStatus = AuthorisationStatusDto.AuthorisationStatusEnum.WITHDRAWN; //TODO
 	}
 }
