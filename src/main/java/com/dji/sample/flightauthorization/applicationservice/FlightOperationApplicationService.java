@@ -5,9 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.geojson.LngLatAlt;
 import org.geojson.Point;
-import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
@@ -32,20 +30,11 @@ import com.dji.sample.flightauthorization.domain.value.USSPFlightOperationId;
 import com.dji.sample.flightauthorization.domain.value.WaylineFileId;
 import com.dji.sample.flightauthorization.domain.value.WorkspaceId;
 import com.dji.sample.flightauthorization.ussp.USSPFlightAuthorizationRepository;
-import com.dji.sample.flightauthorization.ussp.dto.common.GeofenceDto;
-import com.dji.sample.flightauthorization.ussp.dto.common.TypeOfFlight;
-import com.dji.sample.flightauthorization.ussp.dto.common.UASCategory;
-import com.dji.sample.flightauthorization.ussp.dto.common.UASIdentificationTechnology;
 import com.dji.sample.flightauthorization.ussp.dto.common.UASOperatorDTO;
-import com.dji.sample.flightauthorization.ussp.dto.common.UAVClass;
-import com.dji.sample.flightauthorization.ussp.dto.common.UAVDTO;
 import com.dji.sample.flightauthorization.ussp.dto.request.SafetyLandingPointDTO;
-import com.dji.sample.flightauthorization.ussp.dto.request.SubmitFlightAuthorizationRequestDTO;
 import com.dji.sample.flightauthorization.ussp.dto.request.WaypointDTO;
 import com.dji.sample.flightauthorization.ussp.dto.response.FlightOperationDetailDTO;
 import com.dji.sample.flightauthorization.ussp.exception.SubmissionFailedException;
-import com.dji.sample.manage.model.dto.DeviceDTO;
-import com.dji.sample.manage.model.param.DeviceQueryParam;
 import com.dji.sample.manage.service.IDeviceService;
 import com.dji.sample.wayline.domain.entity.Wayline;
 import com.dji.sample.wayline.domain.exception.WaylineReadException;
@@ -67,6 +56,8 @@ public class FlightOperationApplicationService {
 	private final AuthorizationProxy authorizationProxy;
 
 	private final FlightOperationConfigurationProperties configurationProperties;
+
+	private static final String DUMMY_AIRCRAFT_OPERATOR = "DE.HH-SI-001";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FlightOperationApplicationService.class);
 
@@ -157,7 +148,7 @@ public class FlightOperationApplicationService {
 		dto.setFlightPath(wayline.getFlightPath());
 		dto.setModeOfOperation(AuthorisationRequestDto.ModeOfOperationEnum.BVLOS);
 		dto.setTypeOfFlight(AuthorisationRequestDto.TypeOfFlightEnum.STANDARD);
-		dto.setUasOperatorRegistrationNumber("DJICloudRegistration"); //TODO: Hier muss die zugewiesene Registration Number eingetragen werden.
+		dto.setUasOperatorRegistrationNumber(DUMMY_AIRCRAFT_OPERATOR);
 		UnmannedAircraftDto unmannedAircraftDto = this.getUnmannedAircraftDto();
 		dto.setUnmannedAircrafts(List.of(unmannedAircraftDto));
 
@@ -170,8 +161,9 @@ public class FlightOperationApplicationService {
 		unmannedAircraftDto.serialnumber("DJICloudSerialNumber");
 		unmannedAircraftDto.setApplicableEmergencyForConnectivityLoss("phone");
 		unmannedAircraftDto.setEnduranceInMinutes(60);
-		unmannedAircraftDto.setIdentificationTechnology(UnmannedAircraftDto.IdentificationTechnologyEnum.ADS_B);
+		unmannedAircraftDto.setIdentificationTechnology(UnmannedAircraftDto.IdentificationTechnologyEnum.FLARM);
 		unmannedAircraftDto.setUavClass(UnmannedAircraftDto.UavClassEnum.C1);
+		unmannedAircraftDto.setRegistrationNumber("dummyRegistration");
 		return unmannedAircraftDto;
 	}
 
