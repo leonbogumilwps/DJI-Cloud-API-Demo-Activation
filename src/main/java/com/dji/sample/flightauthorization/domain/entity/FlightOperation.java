@@ -12,16 +12,15 @@ import javax.persistence.Id;
 
 import org.hibernate.annotations.Type;
 
+import com.dji.sample.flightauthorization.domain.value.ActivationStatus;
 import com.dji.sample.flightauthorization.domain.value.Description;
 import com.dji.sample.flightauthorization.domain.value.ExecutionTimeframe;
 import com.dji.sample.flightauthorization.domain.value.ModeOfOperation;
+import com.dji.sample.flightauthorization.domain.value.Name;
 import com.dji.sample.flightauthorization.domain.value.Title;
 import com.dji.sample.flightauthorization.domain.value.USSPFlightOperationId;
-import com.dji.sample.flightauthorization.domain.value.Name;
 import com.dji.sample.flightauthorization.domain.value.WaylineFileId;
 import com.dji.sample.flightauthorization.domain.value.WorkspaceId;
-import com.dji.sample.flightauthorization.domain.value.ActivationStatus;
-import com.dji.sample.flightauthorization.domain.value.ApprovalRequestStatus;
 
 import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationStatusDto;
 import lombok.AccessLevel;
@@ -73,7 +72,7 @@ public class FlightOperation {
 
 	@Enumerated(EnumType.STRING)
 	@Setter
-	private AuthorisationStatusDto.AuthorisationStatusEnum approvalRequestStatus;
+	private AuthorisationStatusDto.AuthorisationStatusEnum authorisationStatus;
 
 	public FlightOperation(
 		Name username,
@@ -94,6 +93,6 @@ public class FlightOperation {
 		this.modeOfOperation = modeOfOperation;
 		this.usspFlightOperationId = usspFlightOperationId;
 		this.activationStatus = ActivationStatus.NOT_ACTIVATED;
-		this.approvalRequestStatus = AuthorisationStatusDto.AuthorisationStatusEnum.WITHDRAWN; //TODO
+		this.authorisationStatus = AuthorisationStatusDto.AuthorisationStatusEnum.WITHDRAWN; //TODO
 	}
 }

@@ -83,7 +83,6 @@ public class FlightOperationApplicationService {
 			AuthorisationRequestDto authorisationRequestDto = convertDataToAuthorizationRequestDto(
 				requestDto, wayline); //TODO
 			AuthorisationRequestResponseDto response = authorizationProxy.requestAuthorizationAndWait(authorisationRequestDto);
-			//ResponseEntity<String> submissionResponse = usspFlightAuthorizationRepository.submitRequest(submitFlightAuthorizationRequestDTO);
 			LOGGER.debug("RequestAuthorization successful");
 
 			FlightOperation flightOperation = flightOperationService.save(
@@ -99,15 +98,7 @@ public class FlightOperationApplicationService {
 					USSPFlightOperationId.of(response.getFlightOperationId())
 				));
 
-			//TODO: either keep fetching or wait 5 seconds to pull status
-			//FlightOperationDetailDTO flightRequestSubmission = usspFlightAuthorizationRepository
-			//	.findByFlightOperationId(submissionResponse.getBody()).getBody();
-
-			// Status: ACCEPTED, REJECTED, PENDING
-			// ApprovalStatusUASDTO status = usspFlightAuthorizationRepository.findStatusByFlightOperationId(
-			// submissionResponse.getBody()).getBody();
-
-			flightOperation.setApprovalRequestStatus(response.getStatus().getAuthorisationStatus());
+			flightOperation.setAuthorisationStatus(response.getStatus().getAuthorisationStatus());
 			flightOperationService.save(flightOperation);
 		} catch (WaylineReadException e) {
 			throw new SubmissionFailedException(HttpStatus.BAD_REQUEST, "Failed to read Wayline file.");

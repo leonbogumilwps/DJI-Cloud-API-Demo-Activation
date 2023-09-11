@@ -1,7 +1,6 @@
 package com.dji.sample.flightauthorization.api.response;
 
 import com.dji.sample.flightauthorization.domain.entity.FlightOperation;
-import com.dji.sample.flightauthorization.domain.value.ApprovalRequestStatus;
 import com.dji.sample.flightauthorization.domain.value.Description;
 import com.dji.sample.flightauthorization.domain.value.ExecutionTimeframe;
 import com.dji.sample.flightauthorization.domain.value.ModeOfOperation;
@@ -21,7 +20,7 @@ public class FlightOperationListDTO {
 	private final Description description;
 	private final ExecutionTimeframe timeframe;
 	private final ModeOfOperation modeOfOperation;
-	private final AuthorisationStatusDto.AuthorisationStatusEnum approvalRequestStatus;
+	private final AuthorisationStatusDto.AuthorisationStatusEnum authorisationStatus;
 	private final ActivationStatus activationStatus;
 
 	public FlightOperationListDTO(FlightOperation authorization) {
@@ -32,6 +31,6 @@ public class FlightOperationListDTO {
 		this.timeframe = authorization.getTimeframe();
 		this.modeOfOperation = authorization.getModeOfOperation();
 		this.activationStatus = authorization.getActivationStatus();
-		this.approvalRequestStatus = authorization.getApprovalRequestStatus();
+		this.authorisationStatus = authorization.getAuthorisationStatus();
 	}
 }
