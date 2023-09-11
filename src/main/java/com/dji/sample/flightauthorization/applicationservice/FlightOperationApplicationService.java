@@ -1,11 +1,13 @@
 package com.dji.sample.flightauthorization.applicationservice;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.geojson.LngLatAlt;
 import org.geojson.Point;
+import org.jetbrains.annotations.NotNull;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
@@ -22,7 +24,10 @@ import com.dji.sample.flightauthorization.api.ussp.sender.AuthorizationProxy;
 import com.dji.sample.flightauthorization.config.FlightOperationConfigurationProperties;
 import com.dji.sample.flightauthorization.domain.entity.FlightOperation;
 import com.dji.sample.flightauthorization.domain.service.FlightOperationService;
+import com.dji.sample.flightauthorization.domain.value.Description;
+import com.dji.sample.flightauthorization.domain.value.ModeOfOperation;
 import com.dji.sample.flightauthorization.domain.value.Name;
+import com.dji.sample.flightauthorization.domain.value.Title;
 import com.dji.sample.flightauthorization.domain.value.USSPFlightOperationId;
 import com.dji.sample.flightauthorization.domain.value.WaylineFileId;
 import com.dji.sample.flightauthorization.domain.value.WorkspaceId;
@@ -46,8 +51,11 @@ import com.dji.sample.wayline.domain.entity.Wayline;
 import com.dji.sample.wayline.domain.exception.WaylineReadException;
 import com.dji.sample.wayline.domain.service.WaylineService;
 
+import de.hhlasky.uassimulator.api.ussp.dto.AltitudeDto;
 import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationRequestDto;
 import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationRequestResponseDto;
+import de.hhlasky.uassimulator.api.ussp.dto.OperationalVolumeItemDto;
+import de.hhlasky.uassimulator.api.ussp.dto.UnmannedAircraftDto;
 
 public class FlightOperationApplicationService {
 
@@ -79,12 +87,11 @@ public class FlightOperationApplicationService {
 	public void submitRequest(String workspaceId, String username,
 		CreateFlightOperationRequestDTO requestDto) throws SubmissionFailedException {
 		try {
-			Wayline wayline = waylineService.getWayline(workspaceId, requestDto.getWaylineId());
+			Wayline wayline = waylineService.getWayline(workspaceId, requestDto.getWaylineid());
 
-			SubmitFlightAuthorizationRequestDTO submitFlightAuthorizationRequestDTO = convertDataToSubmissionDTO(
-				requestDto, wayline);
-			AuthorisationRequestDto request = new AuthorisationRequestDto(); //TODO
-			AuthorisationRequestResponseDto response = authorizationProxy.requestAuthorizationAndWait(request);
+			AuthorisationRequestDto authorisationRequestDto = convertDataToAuthorizationRequestDto(
+				requestDto, wayline); //TODO
+			AuthorisationRequestResponseDto response = authorizationProxy.requestAuthorizationAndWait(authorisationRequestDto);
 			//ResponseEntity<String> submissionResponse = usspFlightAuthorizationRepository.submitRequest(submitFlightAuthorizationRequestDTO);
 			LOGGER.debug("RequestAuthorization successful");
 
@@ -92,12 +99,12 @@ public class FlightOperationApplicationService {
 				new FlightOperation(
 					Name.of(username),
 					WorkspaceId.of(workspaceId),
-					WaylineFileId.of(requestDto.getWaylineId()),
-					requestDto.getTitle(),
-					requestDto.getDescription(),
-					requestDto.getTakeoffTime(),
-					requestDto.getLandingTime(),
-					requestDto.getModeOfOperation(),
+					WaylineFileId.of(requestDto.getWaylineid()),
+					Title.of(requestDto.getTitle()),
+					Description.of(requestDto.getDescription()),
+					Instant.parse(requestDto.getTakeofftime()),
+					Instant.parse(requestDto.getLandingtime()),
+					ModeOfOperation.valueOf(requestDto.getModeofoperation()),
 					USSPFlightOperationId.of(response.getFlightOperationId())
 				));
 
@@ -139,61 +146,67 @@ public class FlightOperationApplicationService {
 			authorization.getUsspFlightOperationId().toString());
 	}
 
-	private SubmitFlightAuthorizationRequestDTO convertDataToSubmissionDTO(
-		CreateFlightOperationRequestDTO createFlightOperationRequestDTO, Wayline wayline) {
+	private AuthorisationRequestDto convertDataToAuthorizationRequestDto(CreateFlightOperationRequestDTO createFlightOperationRequestDTO, Wayline wayline){
 
-		return SubmitFlightAuthorizationRequestDTO
-			.builder()
-			.correlationId(null)
-			.title(createFlightOperationRequestDTO.getTitle().toString())
-			.description(createFlightOperationRequestDTO.getDescription().toString())
-			.takeOffTime(createFlightOperationRequestDTO.getTakeoffTime())
-			.landingTime(createFlightOperationRequestDTO.getLandingTime())
-			.typeOfFlight(TypeOfFlight.SPECIAL_OPERATIONS)
-			.flightMode(createFlightOperationRequestDTO.getModeOfOperation())
-			.operator(this.getOperatorDto())
-			.waypoints(this.calculateWaypoints(wayline))
-			.safetyLandingPoints(this.calculateSafetyLandingPoints(wayline))
-			.geofence(this.calculateGeofence(wayline))
-			.uav(this.getUAVDto(createFlightOperationRequestDTO.getUasSerialNumber()))
-			.build();
+		AuthorisationRequestDto dto = new AuthorisationRequestDto();
+		dto.setCorrelationId(null);
+		dto.setTitle(createFlightOperationRequestDTO.getTitle().toString());
+		dto.setDescription(createFlightOperationRequestDTO.getDescription().toString());
+		OperationalVolumeItemDto operationalVolumeItemDto = this.getOperationalVolumeItemDto(wayline);
+		dto.setOperationalVolumes(List.of(operationalVolumeItemDto));
+		dto.setFlightPath(wayline.getFlightPath());
+		dto.setModeOfOperation(AuthorisationRequestDto.ModeOfOperationEnum.BVLOS);
+		dto.setTypeOfFlight(AuthorisationRequestDto.TypeOfFlightEnum.STANDARD);
+		dto.setUasOperatorRegistrationNumber("DJICloudRegistration"); //TODO: Hier muss die zugewiesene Registration Number eingetragen werden.
+		UnmannedAircraftDto unmannedAircraftDto = this.getUnmannedAircraftDto();
+		dto.setUnmannedAircrafts(List.of(unmannedAircraftDto));
+
+		return dto;
+	}
+
+	private UnmannedAircraftDto getUnmannedAircraftDto() {
+		UnmannedAircraftDto unmannedAircraftDto = new UnmannedAircraftDto();
+		unmannedAircraftDto.setCategory(UnmannedAircraftDto.CategoryEnum.CERTIFIED);
+		unmannedAircraftDto.serialnumber("DJICloudSerialNumber");
+		unmannedAircraftDto.setApplicableEmergencyForConnectivityLoss("phone");
+		unmannedAircraftDto.setEnduranceInMinutes(60);
+		unmannedAircraftDto.setIdentificationTechnology(UnmannedAircraftDto.IdentificationTechnologyEnum.ADS_B);
+		unmannedAircraftDto.setUavClass(UnmannedAircraftDto.UavClassEnum.C1);
+		return unmannedAircraftDto;
+	}
+
+	private OperationalVolumeItemDto getOperationalVolumeItemDto(Wayline wayline){
+		LineString flightPath = wayline.getFlightPath();
+
+		// https://docs.geotools.org/latest/userguide/library/jts/operation.html
+		Polygon flightArea = (Polygon) flightPath.buffer(0.001);
+
+		List<Coordinate> flightPathCoordinates = Arrays.asList(flightPath.getCoordinates());
+		double minHeight = flightPathCoordinates.stream().map(Coordinate::getZ).min(Double::compare).get() - 25;
+		double maxHeight = flightPathCoordinates.stream().map(Coordinate::getZ).max(Double::compare).get() + 25;
+
+		OperationalVolumeItemDto operationalVolumeItemDto = new OperationalVolumeItemDto();
+		operationalVolumeItemDto.setArea(this.calculatePolygon(wayline));
+		operationalVolumeItemDto.setEPSG(OperationalVolumeItemDto.EPSGEnum._4326);
+		operationalVolumeItemDto.setEarliestEntryTime(Instant.now().plusSeconds(5));
+		operationalVolumeItemDto.setLatestExitTime(Instant.now().plusSeconds(3600));
+		AltitudeDto minHeightDto = new AltitudeDto();
+		minHeightDto.setReference(AltitudeDto.ReferenceEnum.AMSL_EGM2008);
+		minHeightDto.setUnits(AltitudeDto.UnitsEnum.M);
+		minHeightDto.setValue(minHeight);
+		AltitudeDto maxHeightDto = new AltitudeDto();
+		maxHeightDto.setReference(AltitudeDto.ReferenceEnum.AMSL_EGM2008);
+		maxHeightDto.setUnits(AltitudeDto.UnitsEnum.M);
+		maxHeightDto.setValue(maxHeight);
+		operationalVolumeItemDto.setMinHeight(minHeightDto);
+		operationalVolumeItemDto.setMaxHeight(maxHeightDto);
+		return operationalVolumeItemDto;
 	}
 
 	private UASOperatorDTO getOperatorDto() {
 		return UASOperatorDTO.builder()
 			.operatorID("DE.HH-USSP-0000")
 			.contactURL("https://test.dji-cloud.wps.de/localhost-nicht-hier/")
-			.build();
-	}
-
-	//"2336-55123-X123"
-	private UAVDTO getUAVDto(String serialNumber) {
-		if (configurationProperties.isMockDevices()) {
-			return
-				convertDeviceToCommand(DeviceDTO.builder()
-					.registrationNumber("DE.WPS-TEST-1234")
-					.deviceSn(serialNumber)
-					.build());
-		}
-		return deviceService.getDevicesByParams(
-				DeviceQueryParam.builder()
-					.deviceSn(serialNumber)
-					.build())
-			.stream()
-			.map(this::convertDeviceToCommand)
-			.collect(Collectors.toList()).get(0);
-	}
-
-	private UAVDTO convertDeviceToCommand(DeviceDTO device) {
-		return UAVDTO.builder()
-			.serialnumber(device.getDeviceSn())
-			.registrationId(device.getRegistrationNumber())
-			.category(UASCategory.SPECIFIC)
-			.uavClass(UAVClass.C2)
-			.identificationTechnology(UASIdentificationTechnology.WIFI)
-			.expectedConnectivityMethod(true)
-			.endurance(300)
-			.applicableEmergencyForConnectivityLoss("ELP")
 			.build();
 	}
 
@@ -223,36 +236,10 @@ public class FlightOperationApplicationService {
 		);
 	}
 
-	private GeofenceDto calculateGeofence(Wayline wayline) {
+	private Polygon calculatePolygon(Wayline wayline){
 		LineString flightPath = wayline.getFlightPath();
 
 		// https://docs.geotools.org/latest/userguide/library/jts/operation.html
-		Polygon flightArea = (Polygon) flightPath.buffer(0.001);
-
-		List<Coordinate> flightPathCoordinates = Arrays.asList(flightPath.getCoordinates());
-		double minHeight = flightPathCoordinates.stream().map(Coordinate::getZ).min(Double::compare).get();
-		double maxHeight = flightPathCoordinates.stream().map(Coordinate::getZ).max(Double::compare).get();
-
-		return GeofenceDto.builder()
-			.area(createPolygonGeoJSON(flightArea))
-			.minHeightInMeter(minHeight)
-			.maxHeightInMeter(maxHeight)
-			.build();
-	}
-
-	private org.geojson.Polygon createPolygonGeoJSON(Polygon polygon) {
-		if (polygon.getNumInteriorRing() > 0) {
-			throw new RuntimeException("Polygone mit Löchern werden momentan nicht unterstützt.");
-		}
-		LngLatAlt[] lngLatAlts = parseCoordinates(polygon.getCoordinates());
-		return new org.geojson.Polygon(Arrays.asList(lngLatAlts));
-	}
-
-	private LngLatAlt[] parseCoordinates(Coordinate[] coordinates) {
-		LngLatAlt[] lngLatAlts = new LngLatAlt[coordinates.length];
-		for (int i = 0; i < coordinates.length; i++) {
-			lngLatAlts[i] = new LngLatAlt(coordinates[i].x, coordinates[i].y, coordinates[i].z);
-		}
-		return lngLatAlts;
+		return (Polygon) flightPath.buffer(0.001);
 	}
 }

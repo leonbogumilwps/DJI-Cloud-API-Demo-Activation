@@ -24,18 +24,18 @@ import lombok.ToString;
 @AllArgsConstructor
 public class CreateFlightOperationRequestDTO {
 
-	@NotNull
-	private Title title;
-	private Description description;
-	@NotNull
-	private Instant takeoffTime;
-	@NotNull
-	private Instant landingTime;
-	@NotNull
-	private ModeOfOperation modeOfOperation;
-	@NotNull
-	@NotEmpty
-	private String uasSerialNumber;
-	@NotNull
-	private String waylineId;
+	//@NotNull
+	private String title;
+	private String description;
+	//@NotNull
+	private String takeofftime;
+	//@NotNull
+	private String landingtime;
+	//@NotNull
+	private String modeofoperation;
+	//@NotNull
+	//@NotEmpty
+	private String uasserialnumber;
+	//@NotNull
+	private String waylineid;
 }

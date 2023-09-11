@@ -28,14 +28,14 @@ import lombok.NonNull;
 
 @RestController
 @RequestMapping("${url.flight-authorization-request.version}${url.flight-authorization-request.prefix}")
-public class FlightOperationRequestController {
+public class FlightAuthorizationRequestController {
 
 	private final FlightOperationRequestGuard guard;
 	private final FlightOperationApplicationService applicationService;
 	private static final Logger LOGGER = LoggerFactory.getLogger(FlightOperationApplicationService.class);
 
 
-	public FlightOperationRequestController(
+	public FlightAuthorizationRequestController(
 		@NonNull FlightOperationRequestGuard flightOperationRequestGuard,
 		@NonNull FlightOperationApplicationService flightOperationApplicationService) {
 		this.guard = flightOperationRequestGuard;
