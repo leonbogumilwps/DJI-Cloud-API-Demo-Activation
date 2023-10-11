@@ -10,6 +10,7 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -72,6 +73,48 @@ public class FlightAuthorizationRequestController {
 			applicationService.submitRequest(workspaceId, customClaim.getUsername(), requestDto);
 		} catch (SubmissionFailedException e) {
 			LOGGER.error("createRequest failed with message: {}", e.getMessage());
+		}
+	}
+
+	@DeleteMapping("{workspace_id}/{flight_operation_id}/cancel")
+	public void cancelRequest(
+		@PathVariable("workspace_id") String workspaceId,
+		@PathVariable("flight_operation_id") String flightOperationId,
+		HttpServletRequest request) {
+		guard.createRequest(workspaceId, request);
+		try {
+			LOGGER.debug("Cancel Request for workspaceId {}: ", workspaceId);
+			applicationService.cancelRequest(flightOperationId);
+		} catch (SubmissionFailedException e) {
+			LOGGER.error("cancelRequest failed with message: {}", e.getMessage());
+		}
+	}
+
+	@PostMapping("{workspace_id}/{flight_operation_id}/activate")
+	public void activateFlight(
+		@PathVariable("workspace_id") String workspaceId,
+		@PathVariable("flight_operation_id") String flightOperationId,
+		HttpServletRequest request) {
+		guard.createRequest(workspaceId, request);
+		try {
+			LOGGER.debug("Activate Request for workspaceId {}: ", workspaceId);
+			applicationService.activateFlight(flightOperationId);
+		} catch (SubmissionFailedException e) {
+			LOGGER.error("activateFlight failed with message: {}", e.getMessage());
+		}
+	}
+
+	@DeleteMapping("{workspace_id}/{flight_operation_id}/deactivate")
+	public void deactivateFlight(
+		@PathVariable("workspace_id") String workspaceId,
+		@PathVariable("flight_operation_id") String flightOperationId,
+		HttpServletRequest request) {
+		guard.createRequest(workspaceId, request);
+		try {
+			LOGGER.debug("Deactivate Request for workspaceId {}: ", workspaceId);
+			applicationService.deactivateFlight(flightOperationId);
+		} catch (SubmissionFailedException e) {
+			LOGGER.error("deactivateFlight failed with message: {}", e.getMessage());
 		}
 	}
 }

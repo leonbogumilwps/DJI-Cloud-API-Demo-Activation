@@ -9,6 +9,7 @@ import com.dji.sample.flightauthorization.domain.value.Title;
 import com.dji.sample.flightauthorization.domain.value.ActivationStatus;
 
 import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationStatusDto;
+import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationStatusEnumDto;
 import lombok.Getter;
 
 @Getter
@@ -20,7 +21,7 @@ public class FlightOperationListDTO {
 	private final Description description;
 	private final ExecutionTimeframe timeframe;
 	private final ModeOfOperation modeOfOperation;
-	private final AuthorisationStatusDto.AuthorisationStatusEnum authorisationStatus;
+	private final AuthorisationStatusEnumDto authorisationStatus;
 	private final ActivationStatus activationStatus;
 
 	public FlightOperationListDTO(FlightOperation authorization) {

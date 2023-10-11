@@ -17,6 +17,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationRequestDto;
 import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationRequestResponseDto;
 import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationStatusDto;
+import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationStatusEnumDto;
 import de.hhlasky.uassimulator.api.ussp.sender.FlightAuthorisationsApi;
 
 @Service
@@ -25,8 +26,11 @@ public class AuthorizationProxy {
 	private static final Duration REST_TIMEOUT = Duration.of(5, ChronoUnit.SECONDS);
 	private static final Duration STATUS_CHANGE_TIMEOUT = Duration.of(10, ChronoUnit.SECONDS);
 
-	@Autowired
-	private FlightAuthorisationsApi authorisationRequestApi;
+	private final FlightAuthorisationsApi authorisationRequestApi;
+
+	public AuthorizationProxy(FlightAuthorisationsApi authorisationRequestApi) {
+		this.authorisationRequestApi = authorisationRequestApi;
+	}
 
 	public AuthorisationRequestResponseDto requestAuthorizationAndWait(AuthorisationRequestDto request) {
 		return executeAndLogErrors(() -> {
@@ -34,7 +38,7 @@ public class AuthorizationProxy {
 				.block(REST_TIMEOUT);
 			flightOperationId = flightOperationId.replace("\"", "");
 			LOGGER.info("Flug {} eingetragen", flightOperationId);
-			return waitForAuthorizationStatusUpdate(flightOperationId, Set.of(AuthorisationStatusDto.AuthorisationStatusEnum.APPROVED, AuthorisationStatusDto.AuthorisationStatusEnum.REJECTED));
+			return waitForAuthorizationStatusUpdate(flightOperationId, Set.of(AuthorisationStatusEnumDto.APPROVED, AuthorisationStatusEnumDto.REJECTED));
 		});
 	}
 
@@ -53,11 +57,11 @@ public class AuthorizationProxy {
 			authorisationRequestApi.cancelAuthorisation(flightOperationId)
 				.block(REST_TIMEOUT);
 			LOGGER.info("Cancel Flug {}", flightOperationId);
-			return waitForAuthorizationStatusUpdate(flightOperationId, Set.of(AuthorisationStatusDto.AuthorisationStatusEnum.CANCELLED));
+			return waitForAuthorizationStatusUpdate(flightOperationId, Set.of(AuthorisationStatusEnumDto.CANCELLED));
 		});
 	}
 
-	private AuthorisationRequestResponseDto waitForAuthorizationStatusUpdate(String flightOperationId, Collection<AuthorisationStatusDto.AuthorisationStatusEnum> expectedStatus) {
+	private AuthorisationRequestResponseDto waitForAuthorizationStatusUpdate(String flightOperationId, Collection<AuthorisationStatusEnumDto> expectedStatus) {
 		AuthorisationRequestResponseDto result = null;
 		Instant start = Instant.now();
 		do {

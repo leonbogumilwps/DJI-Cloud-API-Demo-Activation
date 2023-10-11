@@ -18,6 +18,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import com.dji.sample.flightauthorization.api.request.CreateFlightOperationRequestDTO;
 import com.dji.sample.flightauthorization.api.response.FlightOperationListDTO;
+import com.dji.sample.flightauthorization.api.ussp.sender.ActivationRequestProxy;
 import com.dji.sample.flightauthorization.api.ussp.sender.AuthorizationProxy;
 import com.dji.sample.flightauthorization.config.FlightOperationConfigurationProperties;
 import com.dji.sample.flightauthorization.domain.entity.FlightOperation;
@@ -40,6 +41,7 @@ import com.dji.sample.wayline.domain.entity.Wayline;
 import com.dji.sample.wayline.domain.exception.WaylineReadException;
 import com.dji.sample.wayline.domain.service.WaylineService;
 
+import de.hhlasky.uassimulator.api.ussp.dto.ActivationRequestResponseDto;
 import de.hhlasky.uassimulator.api.ussp.dto.AltitudeDto;
 import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationRequestDto;
 import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationRequestResponseDto;
@@ -55,6 +57,8 @@ public class FlightOperationApplicationService {
 
 	private final AuthorizationProxy authorizationProxy;
 
+	private final ActivationRequestProxy activationProxy;
+
 	private final FlightOperationConfigurationProperties configurationProperties;
 
 	private static final String DUMMY_AIRCRAFT_OPERATOR = "DE.HH-SI-001";
@@ -66,13 +70,15 @@ public class FlightOperationApplicationService {
 		FlightOperationService flightOperationService,
 		USSPFlightAuthorizationRepository usspFlightAuthorizationRepository,
 		IDeviceService deviceService,
-		AuthorizationProxy authorizationProxy, FlightOperationConfigurationProperties configurationProperties) {
+		AuthorizationProxy authorizationProxy, FlightOperationConfigurationProperties configurationProperties,
+		ActivationRequestProxy activationProxy) {
 		this.waylineService = waylineService;
 		this.flightOperationService = flightOperationService;
 		this.usspFlightAuthorizationRepository = usspFlightAuthorizationRepository;
 		this.deviceService = deviceService;
 		this.authorizationProxy = authorizationProxy;
 		this.configurationProperties = configurationProperties;
+		this.activationProxy = activationProxy;
 	}
 
 	public void submitRequest(String workspaceId, String username,
@@ -81,7 +87,7 @@ public class FlightOperationApplicationService {
 			Wayline wayline = waylineService.getWayline(workspaceId, requestDto.getWaylineid());
 
 			AuthorisationRequestDto authorisationRequestDto = convertDataToAuthorizationRequestDto(
-				requestDto, wayline); //TODO
+				requestDto, wayline);
 			AuthorisationRequestResponseDto response = authorizationProxy.requestAuthorizationAndWait(authorisationRequestDto);
 			LOGGER.debug("RequestAuthorization successful");
 
@@ -174,11 +180,11 @@ public class FlightOperationApplicationService {
 		operationalVolumeItemDto.setEarliestEntryTime(Instant.now().plusSeconds(5));
 		operationalVolumeItemDto.setLatestExitTime(Instant.now().plusSeconds(3600));
 		AltitudeDto minHeightDto = new AltitudeDto();
-		minHeightDto.setReference(AltitudeDto.ReferenceEnum.AMSL_EGM2008);
+		minHeightDto.setReference(AltitudeDto.ReferenceEnum.HAE_WGS84);
 		minHeightDto.setUnits(AltitudeDto.UnitsEnum.M);
 		minHeightDto.setValue(minHeight);
 		AltitudeDto maxHeightDto = new AltitudeDto();
-		maxHeightDto.setReference(AltitudeDto.ReferenceEnum.AMSL_EGM2008);
+		maxHeightDto.setReference(AltitudeDto.ReferenceEnum.HAE_WGS84);
 		maxHeightDto.setUnits(AltitudeDto.UnitsEnum.M);
 		maxHeightDto.setValue(maxHeight);
 		operationalVolumeItemDto.setMinHeight(minHeightDto);
@@ -224,5 +230,35 @@ public class FlightOperationApplicationService {
 
 		// https://docs.geotools.org/latest/userguide/library/jts/operation.html
 		return (Polygon) flightPath.buffer(0.001);
+	}
+
+	public void cancelRequest(String flightOperationId) throws SubmissionFailedException {
+		try{
+			AuthorisationRequestResponseDto response = authorizationProxy.cancelAuthorizationAndWait(flightOperationId);
+			LOGGER.info("Cancel Request for FlightOperation {} successful", response.getFlightOperationId());
+		}
+		catch (Exception e){
+			throw new SubmissionFailedException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
+	}
+
+	public void activateFlight(String flightOperationId) throws SubmissionFailedException {
+		try{
+			ActivationRequestResponseDto response = activationProxy.activateApprovalRequest(flightOperationId);
+			LOGGER.info("Activate Request for FlightOperation {} successful", response.getFlightOperationId());
+		}
+		catch (Exception e){
+			throw new SubmissionFailedException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
+	}
+
+	public void deactivateFlight(String flightOperationId) throws SubmissionFailedException {
+		try{
+			ActivationRequestResponseDto response = activationProxy.deactivateApprovalRequest(flightOperationId);
+			LOGGER.info("Deactivate Request for FlightOperation {} successful", response.getFlightOperationId());
+		}
+		catch (Exception e){
+			throw new SubmissionFailedException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
 	}
 }
