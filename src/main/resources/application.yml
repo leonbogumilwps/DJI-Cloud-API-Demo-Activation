@@ -64,7 +64,7 @@ mqtt:
     # If the protocol is ws/wss, this value is required.
     path:
     # Topics that need to be subscribed when initially connecting to mqtt, multiple topics are divided by ",".
-    inbound-topic: sys/product/+/status,thing/product/+/requests
+    inbound-topic: sys/product/+/status,thing/product/+/requests,thing/product/+/osd
   DRC:
     protocol: WS # @see com.dji.sample.component.mqtt.model.MqttProtocolEnum
     host: Please enter your ip.
