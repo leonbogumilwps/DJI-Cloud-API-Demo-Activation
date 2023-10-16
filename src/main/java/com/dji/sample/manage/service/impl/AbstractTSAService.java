@@ -6,12 +6,15 @@ import com.dji.sample.component.websocket.model.BizCodeEnum;
 import com.dji.sample.component.websocket.model.CustomWebSocketMessage;
 import com.dji.sample.component.websocket.service.ISendMessageService;
 import com.dji.sample.component.websocket.service.IWebSocketManageService;
+import com.dji.sample.manage.model.common.TelemetryEvent;
 import com.dji.sample.manage.model.dto.DeviceDTO;
 import com.dji.sample.manage.model.dto.TelemetryDTO;
 import com.dji.sample.manage.model.enums.UserTypeEnum;
 import com.dji.sample.manage.service.ITSAService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 
 import java.util.Collection;
 
@@ -20,9 +23,11 @@ import java.util.Collection;
  * @version 0.3
  * @date 2022/2/21
  */
-public abstract class AbstractTSAService implements ITSAService {
+public abstract class AbstractTSAService implements ITSAService, ApplicationEventPublisherAware {
 
     protected AbstractTSAService tsaService;
+
+    private ApplicationEventPublisher eventPublisher;
 
     @Autowired
     protected ObjectMapper mapper;
@@ -36,6 +41,11 @@ public abstract class AbstractTSAService implements ITSAService {
 
     @Autowired
     protected ISendMessageService sendMessageService;
+
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.eventPublisher = applicationEventPublisher;
+    }
 
     @Override
     public void pushTelemetryData(String workspaceId, Object osdData, String sn) {
@@ -53,6 +63,9 @@ public abstract class AbstractTSAService implements ITSAService {
                 .build();
 
         this.pushTelemetryData(pilotSessions, pilotMessage, osdData);
+
+        TelemetryEvent event = new TelemetryEvent(this, osdData);
+        eventPublisher.publishEvent(event);
     }
 
     public abstract void pushTelemetryData(Collection<ConcurrentWebSocketSession> sessions,
