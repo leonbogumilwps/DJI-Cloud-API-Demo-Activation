@@ -5,14 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.geojson.Point;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
@@ -20,7 +18,6 @@ import com.dji.sample.flightauthorization.api.request.CreateFlightOperationReque
 import com.dji.sample.flightauthorization.api.response.FlightOperationListDTO;
 import com.dji.sample.flightauthorization.api.ussp.sender.ActivationRequestProxy;
 import com.dji.sample.flightauthorization.api.ussp.sender.AuthorizationProxy;
-import com.dji.sample.flightauthorization.config.FlightOperationConfigurationProperties;
 import com.dji.sample.flightauthorization.domain.entity.FlightOperation;
 import com.dji.sample.flightauthorization.domain.service.FlightOperationService;
 import com.dji.sample.flightauthorization.domain.value.Description;
@@ -30,13 +27,7 @@ import com.dji.sample.flightauthorization.domain.value.Title;
 import com.dji.sample.flightauthorization.domain.value.USSPFlightOperationId;
 import com.dji.sample.flightauthorization.domain.value.WaylineFileId;
 import com.dji.sample.flightauthorization.domain.value.WorkspaceId;
-import com.dji.sample.flightauthorization.ussp.USSPFlightAuthorizationRepository;
-import com.dji.sample.flightauthorization.ussp.dto.common.UASOperatorDTO;
-import com.dji.sample.flightauthorization.ussp.dto.request.SafetyLandingPointDTO;
-import com.dji.sample.flightauthorization.ussp.dto.request.WaypointDTO;
-import com.dji.sample.flightauthorization.ussp.dto.response.FlightOperationDetailDTO;
 import com.dji.sample.flightauthorization.ussp.exception.SubmissionFailedException;
-import com.dji.sample.manage.service.IDeviceService;
 import com.dji.sample.wayline.domain.entity.Wayline;
 import com.dji.sample.wayline.domain.exception.WaylineReadException;
 import com.dji.sample.wayline.domain.service.WaylineService;
@@ -52,14 +43,10 @@ public class FlightOperationApplicationService {
 
 	private final WaylineService waylineService;
 	private final FlightOperationService flightOperationService;
-	private final USSPFlightAuthorizationRepository usspFlightAuthorizationRepository;
-	private final IDeviceService deviceService;
 
 	private final AuthorizationProxy authorizationProxy;
 
 	private final ActivationRequestProxy activationProxy;
-
-	private final FlightOperationConfigurationProperties configurationProperties;
 
 	private static final String DUMMY_AIRCRAFT_OPERATOR = "DE.HH-SI-001";
 
@@ -68,16 +55,11 @@ public class FlightOperationApplicationService {
 	public FlightOperationApplicationService(
 		WaylineService waylineService,
 		FlightOperationService flightOperationService,
-		USSPFlightAuthorizationRepository usspFlightAuthorizationRepository,
-		IDeviceService deviceService,
-		AuthorizationProxy authorizationProxy, FlightOperationConfigurationProperties configurationProperties,
+		AuthorizationProxy authorizationProxy,
 		ActivationRequestProxy activationProxy) {
 		this.waylineService = waylineService;
 		this.flightOperationService = flightOperationService;
-		this.usspFlightAuthorizationRepository = usspFlightAuthorizationRepository;
-		this.deviceService = deviceService;
 		this.authorizationProxy = authorizationProxy;
-		this.configurationProperties = configurationProperties;
 		this.activationProxy = activationProxy;
 	}
 
@@ -128,18 +110,12 @@ public class FlightOperationApplicationService {
 			.collect(Collectors.toList());
 	}
 
-	public ResponseEntity<FlightOperationDetailDTO> getRequest(Long id) {
-		FlightOperation authorization = flightOperationService.get(id);
-		return usspFlightAuthorizationRepository.findByFlightOperationId(
-			authorization.getUsspFlightOperationId().toString());
-	}
-
 	private AuthorisationRequestDto convertDataToAuthorizationRequestDto(CreateFlightOperationRequestDTO createFlightOperationRequestDTO, Wayline wayline){
 
 		AuthorisationRequestDto dto = new AuthorisationRequestDto();
 		dto.setCorrelationId(null);
-		dto.setTitle(createFlightOperationRequestDTO.getTitle().toString());
-		dto.setDescription(createFlightOperationRequestDTO.getDescription().toString());
+		dto.setTitle(createFlightOperationRequestDTO.getTitle());
+		dto.setDescription(createFlightOperationRequestDTO.getDescription());
 		OperationalVolumeItemDto operationalVolumeItemDto = this.getOperationalVolumeItemDto(wayline);
 		dto.setOperationalVolumes(List.of(operationalVolumeItemDto));
 		dto.setFlightPath(wayline.getFlightPath());
@@ -167,9 +143,6 @@ public class FlightOperationApplicationService {
 	private OperationalVolumeItemDto getOperationalVolumeItemDto(Wayline wayline){
 		LineString flightPath = wayline.getFlightPath();
 
-		// https://docs.geotools.org/latest/userguide/library/jts/operation.html
-		Polygon flightArea = (Polygon) flightPath.buffer(0.001);
-
 		List<Coordinate> flightPathCoordinates = Arrays.asList(flightPath.getCoordinates());
 		double minHeight = flightPathCoordinates.stream().map(Coordinate::getZ).min(Double::compare).get() - 25;
 		double maxHeight = flightPathCoordinates.stream().map(Coordinate::getZ).max(Double::compare).get() + 25;
@@ -190,39 +163,6 @@ public class FlightOperationApplicationService {
 		operationalVolumeItemDto.setMinHeight(minHeightDto);
 		operationalVolumeItemDto.setMaxHeight(maxHeightDto);
 		return operationalVolumeItemDto;
-	}
-
-	private UASOperatorDTO getOperatorDto() {
-		return UASOperatorDTO.builder()
-			.operatorID("DE.HH-USSP-0000")
-			.contactURL("https://test.dji-cloud.wps.de/localhost-nicht-hier/")
-			.build();
-	}
-
-	private List<WaypointDTO> calculateWaypoints(Wayline wayline) {
-		LineString flightPath = wayline.getFlightPath();
-		return Arrays.stream(flightPath.getCoordinates())
-			.map(this::convertCoordinateToWaypoint)
-			.collect(Collectors.toList());
-	}
-
-	private WaypointDTO convertCoordinateToWaypoint(Coordinate coordinate) {
-		return WaypointDTO.builder()
-			.position(new Point(coordinate.x, coordinate.y))
-			.altitudeInMeters(coordinate.z)
-			.cruisingSpeed(5.0)
-			.build();
-	}
-
-	private List<SafetyLandingPointDTO> calculateSafetyLandingPoints(Wayline wayline) {
-		LineString flightPath = wayline.getFlightPath();
-		Coordinate firstCoordinate = flightPath.getCoordinates()[0];
-		return List.of(
-			SafetyLandingPointDTO.builder()
-				.position(new Point(firstCoordinate.x, firstCoordinate.y))
-				.radiusInMeter(1)
-				.build()
-		);
 	}
 
 	private Polygon calculatePolygon(Wayline wayline){
