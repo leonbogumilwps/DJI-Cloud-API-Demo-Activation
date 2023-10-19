@@ -4,6 +4,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -41,6 +42,7 @@ public class DroneTrackingProxy {
 		GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326); //TODO
 		Coordinate coordinate = new Coordinate(droneState.getLongitude(), droneState.getLatitude());
 		Point point = factory.createPoint(coordinate);
+		Optional<Float> flightDirection = Optional.ofNullable(droneState.getAttitudeHead());
 		Instant now = Instant.now();
 
 		return new DroneTrackingInformationDto()
@@ -73,7 +75,7 @@ public class DroneTrackingProxy {
 					.units(AltitudeDto.UnitsEnum.M))
 				.groundSpeed(2.0) //TODO
 				.verticalSpeed(0.0)
-				.flightDirection(.5) //TODO
+				.flightDirection((double) flightDirection.orElse(0f)) //TODO
 				.accuracyGroundSpeed(3)
 				.accuracyHorizontalPosition(11)
 				.accuracyVerticalPosition(5)

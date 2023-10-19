@@ -37,7 +37,7 @@ public class InboundMessageRouter extends AbstractMessageRouter {
         String topic = headers.get(MqttHeaders.RECEIVED_TOPIC).toString();
         byte[] payload = (byte[])message.getPayload();
 
-        log.debug("received topic :{} \t payload :{}", topic, new String(payload));
+        log.trace("received topic :{} \t payload :{}", topic, new String(payload));
 
         DeviceTopicEnum topicEnum = DeviceTopicEnum.find(topic);
         MessageChannel bean = (MessageChannel) SpringBeanUtils.getBean(topicEnum.getBeanName());

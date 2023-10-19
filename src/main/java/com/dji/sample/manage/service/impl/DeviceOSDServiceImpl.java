@@ -78,7 +78,7 @@ public class DeviceOSDServiceImpl extends AbstractTSAService {
                         .collect(Collectors.toList()));
 
             } catch (NullPointerException e) {
-                log.warn("Please remount the payload, or restart the drone. Otherwise the data of the payload will not be received.");
+                log.trace("Please remount the payload, or restart the drone. Otherwise the data of the payload will not be received.");
             }
 
             RedisOpsUtils.setWithExpire(RedisConst.OSD_PREFIX + device.getDeviceSn(), data, RedisConst.DEVICE_ALIVE_SECOND);
