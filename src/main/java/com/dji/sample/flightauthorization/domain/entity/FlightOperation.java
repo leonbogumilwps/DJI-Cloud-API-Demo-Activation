@@ -22,7 +22,6 @@ import com.dji.sample.flightauthorization.domain.value.USSPFlightOperationId;
 import com.dji.sample.flightauthorization.domain.value.WaylineFileId;
 import com.dji.sample.flightauthorization.domain.value.WorkspaceId;
 
-import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationStatusDto;
 import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationStatusEnumDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -95,5 +94,17 @@ public class FlightOperation {
 		this.usspFlightOperationId = usspFlightOperationId;
 		this.activationStatus = ActivationStatus.NOT_ACTIVATED;
 		this.authorisationStatus = AuthorisationStatusEnumDto.WITHDRAWN; //TODO
+	}
+
+	public void activate() {
+		this.setActivationStatus(ActivationStatus.ACTIVATED);
+	}
+
+	public void deactivate() {
+		this.setActivationStatus(ActivationStatus.DEACTIVATED);
+	}
+
+	public void cancel() {
+		this.setAuthorisationStatus(AuthorisationStatusEnumDto.CANCELLED);
 	}
 }

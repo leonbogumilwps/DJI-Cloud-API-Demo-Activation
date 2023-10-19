@@ -8,8 +8,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.dji.sample.flightauthorization.api.FlightOperationRequestGuard;
-import com.dji.sample.flightauthorization.api.ussp.sender.ActivationRequestProxy;
+import com.dji.sample.flightauthorization.api.ussp.sender.ActivationProxy;
 import com.dji.sample.flightauthorization.api.ussp.sender.AuthorizationProxy;
+import com.dji.sample.flightauthorization.api.ussp.sender.DroneTrackingProxy;
 import com.dji.sample.flightauthorization.applicationservice.FlightOperationApplicationService;
 import com.dji.sample.flightauthorization.domain.service.FlightOperationService;
 import com.dji.sample.flightauthorization.repository.FlightOperationRepository;
@@ -23,9 +24,6 @@ import com.dji.sample.wayline.service.IWaylineFileService;
 public class FlightOperationConfiguration {
 
 	@Autowired
-	private FlightOperationConfigurationProperties flightOperationConfigurationProperties;
-
-	@Autowired
 	private IWaylineFileService waylineFileService;
 
 	@Autowired
@@ -35,7 +33,10 @@ public class FlightOperationConfiguration {
 	private AuthorizationProxy authorizationProxy;
 
 	@Autowired
-	private ActivationRequestProxy activationProxy;
+	private ActivationProxy activationProxy;
+
+	@Autowired
+	private DroneTrackingProxy droneTrackingProxy;
 
 	@Bean
 	public FlightOperationRequestGuard flightAuthorizationRequestGuard() {
@@ -49,7 +50,7 @@ public class FlightOperationConfiguration {
 
 	@Bean
 	public FlightOperationApplicationService flightAuthorizationApplicationService() {
-		return new FlightOperationApplicationService(waylineService(), flightAuthorizationService(), authorizationProxy, activationProxy);
+		return new FlightOperationApplicationService(waylineService(), flightAuthorizationService(), authorizationProxy, activationProxy, droneTrackingProxy);
 	}
 
 	@Bean

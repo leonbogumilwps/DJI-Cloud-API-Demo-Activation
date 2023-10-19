@@ -9,7 +9,6 @@ import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -19,15 +18,15 @@ import de.hhlasky.uassimulator.api.ussp.dto.ActivationStatusEnumDto;
 import de.hhlasky.uassimulator.api.ussp.sender.FlightActivationsApi;
 
 @Service
-public class ActivationRequestProxy {
+public class ActivationProxy {
 	private static final Duration REST_TIMEOUT = Duration.of(5, ChronoUnit.SECONDS);
 	private static final Duration STATUS_CHANGE_TIMEOUT = Duration.of(10, ChronoUnit.SECONDS);
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ActivationRequestProxy.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ActivationProxy.class);
 
 	private final FlightActivationsApi activationApi;
 
-	public ActivationRequestProxy(FlightActivationsApi activationApi) {
+	public ActivationProxy(FlightActivationsApi activationApi) {
 		this.activationApi = activationApi;
 	}
 

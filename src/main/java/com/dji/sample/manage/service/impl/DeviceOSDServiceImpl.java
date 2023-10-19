@@ -6,6 +6,7 @@ import com.dji.sample.component.redis.RedisOpsUtils;
 import com.dji.sample.component.websocket.config.ConcurrentWebSocketSession;
 import com.dji.sample.component.websocket.model.BizCodeEnum;
 import com.dji.sample.component.websocket.model.CustomWebSocketMessage;
+import com.dji.sample.manage.model.common.TelemetryEvent;
 import com.dji.sample.manage.model.dto.DeviceDTO;
 import com.dji.sample.manage.model.dto.DevicePayloadDTO;
 import com.dji.sample.manage.model.dto.TelemetryDTO;
@@ -16,6 +17,7 @@ import com.dji.sample.manage.model.receiver.OsdSubDeviceReceiver;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -32,8 +34,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class DeviceOSDServiceImpl extends AbstractTSAService {
 
-    protected DeviceOSDServiceImpl(@Autowired @Qualifier("dockOSDServiceImpl") AbstractTSAService tsaService) {
+    private final ApplicationEventPublisher eventPublisher;
+
+    protected DeviceOSDServiceImpl(@Autowired @Qualifier("dockOSDServiceImpl") AbstractTSAService tsaService, ApplicationEventPublisher eventPublisher) {
         super(tsaService);
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -81,6 +86,8 @@ public class DeviceOSDServiceImpl extends AbstractTSAService {
 
             sendMessageService.sendBatch(webSessions, wsMessage);
             this.pushTelemetryData(device.getWorkspaceId(), data, device.getDeviceSn());
+            TelemetryEvent event = new TelemetryEvent(this, data, device.getDeviceSn());
+            eventPublisher.publishEvent(event);
         }
         tsaService.handleOSD(receiver, device, webSessions, wsMessage);
     }

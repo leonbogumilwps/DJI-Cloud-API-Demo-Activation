@@ -16,8 +16,9 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import com.dji.sample.flightauthorization.api.request.CreateFlightOperationRequestDTO;
 import com.dji.sample.flightauthorization.api.response.FlightOperationListDTO;
-import com.dji.sample.flightauthorization.api.ussp.sender.ActivationRequestProxy;
+import com.dji.sample.flightauthorization.api.ussp.sender.ActivationProxy;
 import com.dji.sample.flightauthorization.api.ussp.sender.AuthorizationProxy;
+import com.dji.sample.flightauthorization.api.ussp.sender.DroneTrackingProxy;
 import com.dji.sample.flightauthorization.domain.entity.FlightOperation;
 import com.dji.sample.flightauthorization.domain.service.FlightOperationService;
 import com.dji.sample.flightauthorization.domain.value.Description;
@@ -28,6 +29,7 @@ import com.dji.sample.flightauthorization.domain.value.USSPFlightOperationId;
 import com.dji.sample.flightauthorization.domain.value.WaylineFileId;
 import com.dji.sample.flightauthorization.domain.value.WorkspaceId;
 import com.dji.sample.flightauthorization.ussp.exception.SubmissionFailedException;
+import com.dji.sample.manage.model.receiver.OsdSubDeviceReceiver;
 import com.dji.sample.wayline.domain.entity.Wayline;
 import com.dji.sample.wayline.domain.exception.WaylineReadException;
 import com.dji.sample.wayline.domain.service.WaylineService;
@@ -46,7 +48,9 @@ public class FlightOperationApplicationService {
 
 	private final AuthorizationProxy authorizationProxy;
 
-	private final ActivationRequestProxy activationProxy;
+	private final ActivationProxy activationProxy;
+
+	private final DroneTrackingProxy droneTrackingProxy;
 
 	private static final String DUMMY_AIRCRAFT_OPERATOR = "DE.HH-SI-001";
 
@@ -56,11 +60,12 @@ public class FlightOperationApplicationService {
 		WaylineService waylineService,
 		FlightOperationService flightOperationService,
 		AuthorizationProxy authorizationProxy,
-		ActivationRequestProxy activationProxy) {
+		ActivationProxy activationProxy, DroneTrackingProxy droneTrackingProxy) {
 		this.waylineService = waylineService;
 		this.flightOperationService = flightOperationService;
 		this.authorizationProxy = authorizationProxy;
 		this.activationProxy = activationProxy;
+		this.droneTrackingProxy = droneTrackingProxy;
 	}
 
 	public void submitRequest(String workspaceId, String username,
@@ -150,7 +155,7 @@ public class FlightOperationApplicationService {
 		OperationalVolumeItemDto operationalVolumeItemDto = new OperationalVolumeItemDto();
 		operationalVolumeItemDto.setArea(this.calculatePolygon(wayline));
 		operationalVolumeItemDto.setEPSG(OperationalVolumeItemDto.EPSGEnum._4326);
-		operationalVolumeItemDto.setEarliestEntryTime(Instant.now().plusSeconds(5));
+		operationalVolumeItemDto.setEarliestEntryTime(Instant.now().plusSeconds(5)); //TODO
 		operationalVolumeItemDto.setLatestExitTime(Instant.now().plusSeconds(3600));
 		AltitudeDto minHeightDto = new AltitudeDto();
 		minHeightDto.setReference(AltitudeDto.ReferenceEnum.HAE_WGS84);
@@ -174,8 +179,11 @@ public class FlightOperationApplicationService {
 
 	public void cancelRequest(String flightOperationId) throws SubmissionFailedException {
 		try{
+			FlightOperation flightOperation = flightOperationService.getByFlightOperationId(USSPFlightOperationId.of(flightOperationId));
 			AuthorisationRequestResponseDto response = authorizationProxy.cancelAuthorizationAndWait(flightOperationId);
 			LOGGER.info("Cancel Request for FlightOperation {} successful", response.getFlightOperationId());
+			flightOperation.cancel();
+			flightOperationService.save(flightOperation);
 		}
 		catch (Exception e){
 			throw new SubmissionFailedException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -184,8 +192,11 @@ public class FlightOperationApplicationService {
 
 	public void activateFlight(String flightOperationId) throws SubmissionFailedException {
 		try{
+			FlightOperation flightOperation = flightOperationService.getByFlightOperationId(USSPFlightOperationId.of(flightOperationId));
 			ActivationRequestResponseDto response = activationProxy.activateApprovalRequest(flightOperationId);
 			LOGGER.info("Activate Request for FlightOperation {} successful", response.getFlightOperationId());
+			flightOperation.activate();
+			flightOperationService.save(flightOperation);
 		}
 		catch (Exception e){
 			throw new SubmissionFailedException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -194,11 +205,18 @@ public class FlightOperationApplicationService {
 
 	public void deactivateFlight(String flightOperationId) throws SubmissionFailedException {
 		try{
+			FlightOperation flightOperation = flightOperationService.getByFlightOperationId(USSPFlightOperationId.of(flightOperationId));
 			ActivationRequestResponseDto response = activationProxy.deactivateApprovalRequest(flightOperationId);
 			LOGGER.info("Deactivate Request for FlightOperation {} successful", response.getFlightOperationId());
+			flightOperation.deactivate();
+			flightOperationService.save(flightOperation);
 		}
 		catch (Exception e){
 			throw new SubmissionFailedException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
+	}
+
+	public void sendDroneTelemetryData(OsdSubDeviceReceiver osdData, String deviceSn) {
+		flightOperationService.getActivatedFlight().ifPresent(flightOperation -> droneTrackingProxy.publishDroneState(osdData, flightOperation)); //TODO: use devicesn
 	}
 }
