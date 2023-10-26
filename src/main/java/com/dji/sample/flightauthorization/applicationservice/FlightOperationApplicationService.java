@@ -136,7 +136,7 @@ public class FlightOperationApplicationService {
 	private UnmannedAircraftDto getUnmannedAircraftDto() {
 		UnmannedAircraftDto unmannedAircraftDto = new UnmannedAircraftDto();
 		unmannedAircraftDto.setCategory(UnmannedAircraftDto.CategoryEnum.CERTIFIED);
-		unmannedAircraftDto.serialnumber("DJICloudSerialNumber");
+		unmannedAircraftDto.serialnumber("DJICloudSerialNumber"); //TODO DJI Serial Number
 		unmannedAircraftDto.setApplicableEmergencyForConnectivityLoss("phone");
 		unmannedAircraftDto.setEnduranceInMinutes(60);
 		unmannedAircraftDto.setIdentificationTechnology(UnmannedAircraftDto.IdentificationTechnologyEnum.FLARM);

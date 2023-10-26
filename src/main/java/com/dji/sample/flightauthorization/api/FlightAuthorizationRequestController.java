@@ -33,7 +33,7 @@ public class FlightAuthorizationRequestController {
 
 	private final FlightOperationRequestGuard guard;
 	private final FlightOperationApplicationService applicationService;
-	private static final Logger LOGGER = LoggerFactory.getLogger(FlightOperationApplicationService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FlightAuthorizationRequestController.class);
 
 
 	public FlightAuthorizationRequestController(

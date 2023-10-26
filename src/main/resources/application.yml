@@ -56,7 +56,7 @@ mqtt:
   # BASIC parameters are required.
   BASIC:
     protocol: MQTT # @see com.dji.sample.component.mqtt.model.MqttProtocolEnum
-    host: ${HOST}
+    host: DETECT_IP
     port: 1883
     username: JavaServer
     password: 123456

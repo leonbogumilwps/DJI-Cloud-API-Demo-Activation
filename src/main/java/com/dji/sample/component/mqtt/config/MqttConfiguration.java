@@ -15,6 +15,9 @@ import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
 import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
 import org.springframework.util.StringUtils;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 import java.util.Map;
 
 /**
@@ -61,7 +64,7 @@ public class MqttConfiguration {
     private static String getMqttAddress(MqttClientOptions options) {
         StringBuilder addr = new StringBuilder()
                 .append(options.getProtocol().getProtocolAddr())
-                .append(options.getHost().trim())
+                .append("DETECT_IP".equals(options.getHost()) ? detectIp() : options.getHost().trim())
                 .append(":")
                 .append(options.getPort());
         if ((options.getProtocol() == MqttProtocolEnum.WS || options.getProtocol() == MqttProtocolEnum.WSS)
@@ -115,5 +118,26 @@ public class MqttConfiguration {
         DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
         factory.setConnectionOptions(mqttConnectOptions());
         return factory;
+    }
+
+    private static String detectIp(){
+        try {
+            Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+            while(networkInterfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = networkInterfaces.nextElement();
+                if (networkInterface.isUp() && !networkInterface.isLoopback()) {
+                    Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
+                    while(inetAddresses.hasMoreElements()) {
+                        InetAddress inetAddress = inetAddresses.nextElement();
+                        if(inetAddress.isSiteLocalAddress()) {
+                            return inetAddress.getHostAddress();
+                        }
+                    }
+                }
+            }
+        } catch (java.net.SocketException e) {
+            e.printStackTrace();
+        }
+        return "127.0.0.1";
     }
 }
