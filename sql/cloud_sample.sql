@@ -473,6 +473,7 @@ DROP TABLE IF EXISTS `flight_operation`;
 CREATE TABLE `flight_operation` (
     `id` bigint NOT NULL PRIMARY KEY AUTO_INCREMENT,
     `username` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'The name of the creator.',
+    `device_sn` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'The device serial number.',
     `workspace_id` varchar(45) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'Which workspace the current job belongs to.',
     `wayline_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'uuid of used wayline file',
     `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',

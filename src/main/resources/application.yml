@@ -1,5 +1,5 @@
 server:
-  port: 6789
+  port: 50000 #6789
 spring:
   application:
     name: cloud-api-sample

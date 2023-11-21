@@ -16,4 +16,6 @@ public interface FlightOperationRepository extends CrudRepository<FlightOperatio
 	Optional<FlightOperation> findFlightOperationByUsspFlightOperationId(USSPFlightOperationId flightOperationId);
 
 	List<FlightOperation> findFlightOperationByActivationStatus(ActivationStatus activationStatus);
+
+	List<FlightOperation> findFlightOperationByDevicesnAndActivationStatus(String deviceSn, ActivationStatus activationStatus);
 }

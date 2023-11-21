@@ -81,6 +81,7 @@ public class FlightOperationApplicationService {
 			FlightOperation flightOperation = flightOperationService.save(
 				new FlightOperation(
 					Name.of(username),
+					requestDto.getUasserialnumber(),
 					WorkspaceId.of(workspaceId),
 					WaylineFileId.of(requestDto.getWaylineid()),
 					Title.of(requestDto.getTitle()),
@@ -174,7 +175,7 @@ public class FlightOperationApplicationService {
 		LineString flightPath = wayline.getFlightPath();
 
 		// https://docs.geotools.org/latest/userguide/library/jts/operation.html
-		return (Polygon) flightPath.buffer(0.001);
+		return (Polygon) flightPath.buffer(0.003);
 	}
 
 	public void cancelRequest(String flightOperationId) throws SubmissionFailedException {
@@ -217,6 +218,6 @@ public class FlightOperationApplicationService {
 	}
 
 	public void sendDroneTelemetryData(OsdSubDeviceReceiver osdData, String deviceSn) {
-		flightOperationService.getActivatedFlight().ifPresent(flightOperation -> droneTrackingProxy.publishDroneState(osdData, flightOperation)); //TODO: use devicesn
+		flightOperationService.getActivatedFlight(deviceSn).ifPresent(flightOperation -> droneTrackingProxy.publishDroneState(osdData, flightOperation)); //TODO: use devicesn
 	}
 }

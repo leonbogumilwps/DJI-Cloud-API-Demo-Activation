@@ -26,7 +26,7 @@ public class FlightOperationService {
 		return repository.findAll();
 	}
 
-	public Optional<FlightOperation> getActivatedFlight(){
+	public Optional<FlightOperation> getActivatedFlight(String devicesn){
 		List<FlightOperation> activatedFlights = repository.findFlightOperationByActivationStatus(ActivationStatus.ACTIVATED);
 		if(!activatedFlights.isEmpty()){
 			return Optional.of(activatedFlights.get(0));

@@ -2,6 +2,7 @@ package com.dji.sample.flightauthorization.domain.entity;
 
 import java.time.Instant;
 
+import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -42,6 +43,9 @@ public class FlightOperation {
 	@Getter
 	private Long id;
 
+	@Column(name = "device_sn")
+	private String devicesn;
+
 	@Type(type = "com.dji.sample.flightauthorization.domain.value.usertype.NameUserType")
 	private Name username;
 
@@ -76,6 +80,7 @@ public class FlightOperation {
 
 	public FlightOperation(
 		Name username,
+		String devicesn,
 		WorkspaceId workspaceId,
 		WaylineFileId waylineId,
 		Title title,
@@ -85,6 +90,7 @@ public class FlightOperation {
 		ModeOfOperation modeOfOperation,
 		USSPFlightOperationId usspFlightOperationId) {
 		this.username = username;
+		this.devicesn = devicesn;
 		this.workspaceId = workspaceId;
 		this.waylineId = waylineId;
 		this.title = title;

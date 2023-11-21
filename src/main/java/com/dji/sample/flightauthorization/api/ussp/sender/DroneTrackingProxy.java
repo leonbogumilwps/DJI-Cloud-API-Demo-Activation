@@ -62,7 +62,7 @@ public class DroneTrackingProxy {
 				.location(point))
 			.uasDetails(new DroneTrackingInformationUasDetailsDto()
 				.identification(new DroneTrackingInformationUasDetailsIdentificationDto()
-					.serialNumber("djix4Xu9x4")) //TODO
+					.serialNumber(flightOperation.getDevicesn()))
 				.type(DroneTrackingInformationUasDetailsDto.TypeEnum.HELICOPTER)
 				.operationalStatus(DroneTrackingInformationUasDetailsDto.OperationalStatusEnum.AIRBOURNE)
 			)
@@ -70,7 +70,7 @@ public class DroneTrackingProxy {
 				.EPSG(DroneTrackingInformationTelemetryDto.EPSGEnum._4326)
 				.position(point)
 				.altitude(new AltitudeDto()
-					.reference(AltitudeDto.ReferenceEnum.valueOf("HAE_WGS84"))
+					.reference(AltitudeDto.ReferenceEnum.valueOf("AMSL_EGM2008")) // Nach Topic Definition sollten die DJI Drohnen AMSL übertragen
 					.value(droneState.getHeight())
 					.units(AltitudeDto.UnitsEnum.M))
 				.groundSpeed(2.0) //TODO
