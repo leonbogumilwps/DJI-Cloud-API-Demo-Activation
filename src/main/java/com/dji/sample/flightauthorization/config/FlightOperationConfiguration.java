@@ -12,7 +12,8 @@ import com.dji.sample.flightauthorization.api.ussp.sender.ActivationProxy;
 import com.dji.sample.flightauthorization.api.ussp.sender.AuthorizationProxy;
 import com.dji.sample.flightauthorization.api.ussp.sender.DroneTrackingProxy;
 import com.dji.sample.flightauthorization.applicationservice.FlightOperationApplicationService;
-import com.dji.sample.flightauthorization.domain.service.FlightOperationService;
+import com.dji.sample.flightauthorization.domain.service.FlightExecutionService;
+import com.dji.sample.flightauthorization.domain.service.FlightPlanningService;
 import com.dji.sample.flightauthorization.repository.FlightOperationRepository;
 import com.dji.sample.wayline.domain.service.WaylineService;
 import com.dji.sample.wayline.service.IWaylineFileService;
@@ -50,11 +51,16 @@ public class FlightOperationConfiguration {
 
 	@Bean
 	public FlightOperationApplicationService flightAuthorizationApplicationService() {
-		return new FlightOperationApplicationService(waylineService(), flightAuthorizationService(), authorizationProxy, activationProxy, droneTrackingProxy);
+		return new FlightOperationApplicationService(flightAuthorizationService(), flightExecutionService());
 	}
 
 	@Bean
-	public FlightOperationService flightAuthorizationService() {
-		return new FlightOperationService(flightOperationRepository);
+	public FlightPlanningService flightAuthorizationService() {
+		return new FlightPlanningService(flightOperationRepository, waylineService(), authorizationProxy);
+	}
+
+	@Bean
+	public FlightExecutionService flightExecutionService(){
+		return new FlightExecutionService(activationProxy, droneTrackingProxy, flightOperationRepository);
 	}
 }

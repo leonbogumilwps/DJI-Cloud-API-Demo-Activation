@@ -309,7 +309,7 @@ LOCK TABLES `manage_workspace` WRITE;
 
 INSERT INTO `manage_workspace` (`id`, `workspace_id`, `workspace_name`, `workspace_desc`, `platform_name`, `create_time`, `update_time`, `bind_code`)
 VALUES
-	(1,'e3dea0f5-37f2-4d79-ae58-490af3228069','Test Group One','Cloud Sample Test Platform','Cloud Api Platform',1634898410751,1634898410751,'qwe');
+	(1,'e3dea0f5-37f2-4d79-ae58-490af3228069','WPS USSP-Adapter','Cloud Sample Test Platform','Cloud Api Platform',1634898410751,1634898410751,'qwe');
 
 /*!40000 ALTER TABLE `manage_workspace` ENABLE KEYS */;
 UNLOCK TABLES;
