@@ -20,9 +20,9 @@ import com.dji.sample.manage.model.receiver.OsdSubDeviceReceiver;
 
 import de.hhlasky.uassimulator.api.ussp.dto.ActivationRequestResponseDto;
 
-public class FlightExecutionService {
+public class FlightOperationExecutionService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(FlightExecutionService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FlightOperationExecutionService.class);
 
 	private final ActivationProxy activationProxy;
 
@@ -30,7 +30,7 @@ public class FlightExecutionService {
 
 	private final FlightOperationRepository flightOperationRepository;
 
-	public FlightExecutionService(ActivationProxy activationProxy, DroneTrackingProxy droneTrackingProxy, FlightOperationRepository flightOperationRepository) {
+	public FlightOperationExecutionService(ActivationProxy activationProxy, DroneTrackingProxy droneTrackingProxy, FlightOperationRepository flightOperationRepository) {
 		this.activationProxy = activationProxy;
 		this.droneTrackingProxy = droneTrackingProxy;
 		this.flightOperationRepository = flightOperationRepository;
@@ -70,7 +70,7 @@ public class FlightExecutionService {
 		else return Optional.empty();
 	}
 
-	public void sendDroneTelemetryData(OsdSubDeviceReceiver osdData, String deviceSn) {
+	public void submitCurrentDroneState(OsdSubDeviceReceiver osdData, String deviceSn) {
 		this.getActivatedFlight(deviceSn).ifPresent(flightOperation -> droneTrackingProxy.publishDroneState(osdData, flightOperation));
 	}
 

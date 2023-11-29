@@ -47,7 +47,7 @@ public class DroneTrackingProxy {
 
 		return new DroneTrackingInformationDto()
 			.timestamp(new DroneTrackingInformationTimestampDto()
-				.value(now.toString())
+				.value(now.toString()) //TODO: Das sollte eigentlich aus dem Drohnenstatus gelesen werden
 				.format(DroneTrackingInformationTimestampDto.FormatEnum.RFC3339)
 				.accuracy(0))
 			.flightDetails(new DroneTrackingInformationFlightDetailsDto()
@@ -57,7 +57,7 @@ public class DroneTrackingProxy {
 					.propertyClass(DroneTrackingInformationFlightDetailsClassificationDto.PropertyClassEnum.UNDEFINED)))
 			.operatorDetails(new DroneTrackingInformationOperatorDetailsDto()
 				.EPSG(DroneTrackingInformationOperatorDetailsDto.EPSGEnum._4326)
-				.id("DE.HH-SI-001")//TODO
+				.id("DE.HH-DJ-100")//TODO
 				.locationType(DroneTrackingInformationOperatorDetailsDto.LocationTypeEnum.DYNAMIC)
 				.location(point))
 			.uasDetails(new DroneTrackingInformationUasDetailsDto()
@@ -71,7 +71,7 @@ public class DroneTrackingProxy {
 				.position(point)
 				.altitude(new AltitudeDto()
 					.reference(AltitudeDto.ReferenceEnum.valueOf("AMSL_EGM2008")) // Nach Topic Definition sollten die DJI Drohnen AMSL übertragen
-					.value(droneState.getHeight())
+					.value(droneState.getHeight()) //TODO: Hier vielleicht Korrekturwert fürs Testen addieren
 					.units(AltitudeDto.UnitsEnum.M))
 				.groundSpeed(2.0) //TODO
 				.verticalSpeed(0.0)

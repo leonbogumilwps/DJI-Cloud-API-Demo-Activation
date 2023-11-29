@@ -37,19 +37,19 @@ import de.hhlasky.uassimulator.api.ussp.dto.AuthorisationRequestResponseDto;
 import de.hhlasky.uassimulator.api.ussp.dto.OperationalVolumeItemDto;
 import de.hhlasky.uassimulator.api.ussp.dto.UnmannedAircraftDto;
 
-public class FlightPlanningService {
+public class FlightOperationPlanningService {
 
 	private final FlightOperationRepository repository;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(FlightPlanningService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(FlightOperationPlanningService.class);
 
-	private static final String DUMMY_AIRCRAFT_OPERATOR = "DE.HH-SI-001";
+	private static final String DUMMY_AIRCRAFT_OPERATOR = "DE.HH-DJ-100";
 
 	private final WaylineService waylineService;
 
 	private final AuthorizationProxy authorizationProxy;
 
-	public FlightPlanningService(FlightOperationRepository repository, WaylineService waylineService, AuthorizationProxy authorizationProxy) {
+	public FlightOperationPlanningService(FlightOperationRepository repository, WaylineService waylineService, AuthorizationProxy authorizationProxy) {
 		this.repository = repository;
 		this.waylineService = waylineService;
 		this.authorizationProxy = authorizationProxy;
