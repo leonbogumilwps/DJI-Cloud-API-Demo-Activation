@@ -43,7 +43,7 @@ public class FlightOperationPlanningService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FlightOperationPlanningService.class);
 
-	private static final String DUMMY_AIRCRAFT_OPERATOR = "DE.HH-DJ-100";
+	private static final String DUMMY_AIRCRAFT_OPERATOR = "DE.HH-SI-001";
 
 	private final WaylineService waylineService;
 

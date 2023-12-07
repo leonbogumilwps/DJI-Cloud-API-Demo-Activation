@@ -39,10 +39,12 @@ public class DroneTrackingProxy {
 	}
 
 	private static DroneTrackingInformationDto toDto(OsdSubDeviceReceiver droneState, FlightOperation flightOperation) {
-		GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326); //TODO
+		GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
 		Coordinate coordinate = new Coordinate(droneState.getLongitude(), droneState.getLatitude());
 		Point point = factory.createPoint(coordinate);
-		Optional<Float> flightDirection = Optional.ofNullable(droneState.getAttitudeHead());
+		float attitudeHead = droneState.getAttitudeHead();
+		if(attitudeHead < 0) attitudeHead = attitudeHead + 360; // Umrechnung für USSP-API nötig
+		Optional<Float> flightDirection = Optional.ofNullable(attitudeHead);
 		Instant now = Instant.now();
 
 		return new DroneTrackingInformationDto()
@@ -57,7 +59,7 @@ public class DroneTrackingProxy {
 					.propertyClass(DroneTrackingInformationFlightDetailsClassificationDto.PropertyClassEnum.UNDEFINED)))
 			.operatorDetails(new DroneTrackingInformationOperatorDetailsDto()
 				.EPSG(DroneTrackingInformationOperatorDetailsDto.EPSGEnum._4326)
-				.id("DE.HH-DJ-100")//TODO
+				.id("DE.HH-SI-001")//TODO
 				.locationType(DroneTrackingInformationOperatorDetailsDto.LocationTypeEnum.DYNAMIC)
 				.location(point))
 			.uasDetails(new DroneTrackingInformationUasDetailsDto()
@@ -70,12 +72,12 @@ public class DroneTrackingProxy {
 				.EPSG(DroneTrackingInformationTelemetryDto.EPSGEnum._4326)
 				.position(point)
 				.altitude(new AltitudeDto()
-					.reference(AltitudeDto.ReferenceEnum.valueOf("AMSL_EGM2008")) // Nach Topic Definition sollten die DJI Drohnen AMSL übertragen
-					.value(droneState.getHeight()) //TODO: Hier vielleicht Korrekturwert fürs Testen addieren
+					.reference(AltitudeDto.ReferenceEnum.valueOf("HAE_WGS84")) // Mit GPS-Signal wird der WGS84-Wert übertragen
+					.value(droneState.getHeight())
 					.units(AltitudeDto.UnitsEnum.M))
 				.groundSpeed(2.0) //TODO
 				.verticalSpeed(0.0)
-				.flightDirection((double) flightDirection.orElse(0f)) //TODO
+				.flightDirection((double) flightDirection.orElse(0f))
 				.accuracyGroundSpeed(3)
 				.accuracyHorizontalPosition(11)
 				.accuracyVerticalPosition(5)
