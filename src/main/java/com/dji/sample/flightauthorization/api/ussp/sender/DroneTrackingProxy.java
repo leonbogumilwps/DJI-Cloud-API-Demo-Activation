@@ -42,14 +42,13 @@ public class DroneTrackingProxy {
 		GeometryFactory factory = new GeometryFactory(new PrecisionModel(), 4326);
 		Coordinate coordinate = new Coordinate(droneState.getLongitude(), droneState.getLatitude());
 		Point point = factory.createPoint(coordinate);
-		float attitudeHead = droneState.getAttitudeHead();
-		if(attitudeHead < 0) attitudeHead = attitudeHead + 360; // Umrechnung für USSP-API nötig
-		Optional<Float> flightDirection = Optional.ofNullable(attitudeHead);
+		float attitudeHead = (droneState.getAttitudeHead() + 360) % 360; // Normalisierung des Winkels für API: Statt -180° - 180° → 0 - 360°
+		Optional<Float> flightDirection = Optional.of(attitudeHead);
 		Instant now = Instant.now();
 
 		return new DroneTrackingInformationDto()
 			.timestamp(new DroneTrackingInformationTimestampDto()
-				.value(now.toString()) //TODO: Das sollte eigentlich aus dem Drohnenstatus gelesen werden
+				.value(now.toString()) //TODO: Das sollte aus dem Drohnenstatus gelesen werden
 				.format(DroneTrackingInformationTimestampDto.FormatEnum.RFC3339)
 				.accuracy(0))
 			.flightDetails(new DroneTrackingInformationFlightDetailsDto()
@@ -72,7 +71,7 @@ public class DroneTrackingProxy {
 				.EPSG(DroneTrackingInformationTelemetryDto.EPSGEnum._4326)
 				.position(point)
 				.altitude(new AltitudeDto()
-					.reference(AltitudeDto.ReferenceEnum.valueOf("HAE_WGS84")) // Mit GPS-Signal wird der WGS84-Wert übertragen
+					.reference(AltitudeDto.ReferenceEnum.valueOf("HAE_WGS84")) // Mit GPS-Signal wird der HAE-WGS84-Wert übertragen
 					.value(droneState.getHeight())
 					.units(AltitudeDto.UnitsEnum.M))
 				.groundSpeed(2.0) //TODO
